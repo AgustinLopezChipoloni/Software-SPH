@@ -1,0 +1,46 @@
+.emp-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding: 16px;
+}
+
+.emp-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(16,24,40,.08), 0 2px 6px rgba(16,24,40,.06);
+  padding: 16px;
+}
+
+.emp-card h2 { margin: 0 0 10px 0; color: #0f172a; }
+
+.emp-form .row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.emp-form .col { display: flex; flex-direction: column; gap: 6px; }
+.emp-form label { font-size: 14px; font-weight: 600; color: #111827; }
+.emp-form input[type="text"],
+.emp-form input[type="email"],
+.emp-form input[type="date"] {
+  height: 40px; border: 1px solid #e5e7eb; border-radius: 10px; padding: 0 10px;
+}
+.chk { display: inline-flex; align-items: center; gap: 8px; }
+
+.btn {
+  height: 42px; padding: 0 14px; border: 0; border-radius: 10px;
+  background: #1e88e5; color: #fff; font-weight: 700; cursor: pointer;
+}
+
+.emp-msg { margin: 6px 0 10px 0; color: #0f766e; }
+
+.emp-table table { width: 100%; border-collapse: collapse; }
+.emp-table th, .emp-table td { border: 1px solid #e5e7eb; padding: 8px; font-size: 14px; }
+.emp-table th { background: #f8fafc; text-align: left; }
+
+@media (max-width: 720px){
+  .emp-form .row { grid-template-columns: 1fr; }
+}
