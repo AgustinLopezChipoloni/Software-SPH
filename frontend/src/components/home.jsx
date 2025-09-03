@@ -6,6 +6,8 @@ import {
   BiLogOut, BiCog, BiBarChart
 } from "react-icons/bi";
 import AltaEmple from "../components/AltaEmple";
+import AltaCamion from "../components/AltaCamion";
+
 
 /** Botón del sidebar (reutilizable) */
 function SidebarItem({ icon: Icon, label, active, onClick }) {
@@ -108,6 +110,7 @@ export default memo(function Home({ user, onLogout }) {
             icon={BiTruck} // 👈 ahora apunta al alias de BiBus
             label="Logística"
             active={section === "logistica"}
+            
             onClick={() => handleNav("logistica")}
           />
           <SidebarItem
@@ -144,11 +147,9 @@ export default memo(function Home({ user, onLogout }) {
             </div>
           </div>
         </header>
-
         {/* 👇 Vista condicional según sección */}
         {section === "empleados" ? (
-          // Módulo Empleados: mostramos el formulario + lista
-          // (si después querés pasar el user para reglas UI: <AltaEmple user={user} />)
+          // Módulo Empleados
           <AltaEmple />
         ) : section === "dashboard" ? (
           <>
@@ -169,13 +170,17 @@ export default memo(function Home({ user, onLogout }) {
               </p>
             </section>
           </>
+        ) : section === "logistica" ? (
+          // 👇 Acá mostramos el alta/listado de camiones
+          <AltaCamion />
         ) : (
-          // Placeholder para las demás secciones que todavía no hicimos
+          // Placeholder para secciones no implementadas
           <section className="welcome-card">
             <h2>{currentTitle}</h2>
             <p>Sección en construcción.</p>
           </section>
         )}
+
       </main>
     </div>
   );
