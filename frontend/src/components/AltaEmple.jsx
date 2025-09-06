@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { api } from "../services/api";
 import "../styles/AltaEmple.css";
 
+// ⬇️ NUEVO: agregamos cargo_nombre para enviar al backend
 const initial = {
   nombre: "", apellido: "", dni: "", email: "",
-  telefono: "", fecha_ingreso: "", activo: true
+  telefono: "", fecha_ingreso: "", activo: true,
+  cargo_nombre: "" // "CHOFER" / "OPERARIO" / "ADMIN" / "JEFE_PLANTA" (opcional)
 };
 
 export default function Employees() {
@@ -29,7 +31,7 @@ export default function Employees() {
     e.preventDefault();
     setLoading(true); setMsg("");
     try {
-      await api.post("/api/empleados", form);
+      await api.post("/api/empleados", form); // envía cargo_nombre si hay
       setForm(initial);
       await cargar();
       setMsg("Empleado creado correctamente.");
@@ -78,6 +80,20 @@ export default function Employees() {
             </div>
           </div>
 
+          
+          <div className="row">
+            <div className="col">
+              <label>Cargo</label>
+              <select name="cargo_nombre" value={form.cargo_nombre} onChange={onChange}>
+                <option value="">(sin especificar)</option>
+                <option value="CHOFER">Chofer</option>
+                <option value="OPERARIO">Operario</option>
+                <option value="JEFE_PLANTA">Jefe de Planta</option>
+                <option value="ADMIN">Admin</option>
+              </select>
+            </div>
+          </div>
+
           <div className="row">
             <label className="chk">
               <input type="checkbox" name="activo" checked={form.activo} onChange={onChange} />
@@ -99,7 +115,14 @@ export default function Employees() {
           <table>
             <thead>
               <tr>
-                <th>ID</th><th>Nombre</th><th>DNI</th><th>Email</th><th>Teléfono</th><th>Ingreso</th><th>Activo</th>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>DNI</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Ingreso</th>
+                <th>Activo</th>
+                <th>Cargo</th> 
               </tr>
             </thead>
             <tbody>
@@ -110,12 +133,13 @@ export default function Employees() {
                   <td>{emp.dni}</td>
                   <td>{emp.email}</td>
                   <td>{emp.telefono || "—"}</td>
-                  <td>{emp.fecha_ingreso}</td>
+                  <td>{String(emp.fecha_ingreso).slice(0,10)}</td>
                   <td>{emp.activo ? "Sí" : "No"}</td>
+                  <td>{emp.cargo || "—"}</td> {/* ⬅️ muestra nombre de cargo */}
                 </tr>
               ))}
               {lista.length === 0 && (
-                <tr><td colSpan="7" style={{textAlign:"center"}}>Sin empleados</td></tr>
+                <tr><td colSpan="8" style={{textAlign:"center"}}>Sin empleados</td></tr>
               )}
             </tbody>
           </table>
