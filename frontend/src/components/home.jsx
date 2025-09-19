@@ -1,13 +1,19 @@
 import { memo, useState } from "react";
 import "../styles/home.css";
 import {
-  BiUser, BiGroup, BiCartAlt, BiPackage,
+  BiUser,
+  BiGroup,
+  BiCartAlt,
+  BiPackage,
   BiBus as BiTruck, // 👈 Alias: usamos BiBus pero lo llamamos BiTruck para no tocar el resto
-  BiLogOut, BiCog, BiBarChart
+  BiLogOut,
+  BiCog,
+  BiBarChart,
 } from "react-icons/bi";
 import AltaEmple from "../components/AltaEmple";
 import AltaCamion from "../components/AltaCamion";
-
+import Asistencias from "../components/Asistencias";
+import AsignacionesCamiones from "../components/AsignacionesCamiones"; // 👈 ya lo veníamos usando
 
 /** Botón del sidebar (reutilizable) */
 function SidebarItem({ icon: Icon, label, active, onClick }) {
@@ -41,14 +47,16 @@ function StatCard({ icon: Icon, title, value, hint }) {
 
 /**
  * HOME
- * - Agregamos estado `section` para saber qué vista mostrar.
+ * - Estado `section` para saber qué vista mostrar.
  * - Al clickear en el sidebar, actualizamos `section`.
- * - Si `section === "empleados"`, renderizamos <AltaEmple />.
- * - Caso contrario, mostramos el dashboard por defecto.
+ * - Render condicional según `section`.
  */
 export default memo(function Home({ user, onLogout }) {
   // 👇 sección actual. Arrancamos en "dashboard".
   const [section, setSection] = useState("dashboard");
+
+  // 👇 tab actual dentro de Logística
+  const [logisticaTab, setLogisticaTab] = useState("camiones"); // "camiones" | "asignaciones"
 
   // Cambia de vista al tocar el sidebar
   const handleNav = (next) => setSection(next);
@@ -62,6 +70,7 @@ export default memo(function Home({ user, onLogout }) {
     stock: "Stock",
     logistica: "Logística",
     config: "Configuración",
+    asistencias: "Asistencias",
   };
   const currentTitle = titleMap[section] || "Panel";
 
@@ -110,14 +119,17 @@ export default memo(function Home({ user, onLogout }) {
             icon={BiTruck} // 👈 ahora apunta al alias de BiBus
             label="Logística"
             active={section === "logistica"}
-            
-            onClick={() => handleNav("logistica")}
+            onClick={() => {
+              setSection("logistica");
+              // opcional: cuando entrás a logística, dejá por defecto "camiones"
+              setLogisticaTab((prev) => prev || "camiones");
+            }}
           />
           <SidebarItem
-            icon={BiCog}
-            label="Configuración"
-            active={section === "config"}
-            onClick={() => handleNav("config")}
+            icon={BiUser} // si querés otro icono después lo cambiamos
+            label="Asistencias"
+            active={section === "asistencias"}
+            onClick={() => handleNav("asistencias")}
           />
         </nav>
 
@@ -140,39 +152,108 @@ export default memo(function Home({ user, onLogout }) {
             </p>
           </div>
           <div className="user-chip" title={`${user?.username} (${user?.rol})`}>
-            <div className="user-avatar">{(user?.username || "U")[0].toUpperCase()}</div>
+            <div className="user-avatar">
+              {(user?.username || "U")[0].toUpperCase()}
+            </div>
             <div className="user-meta">
               <div className="user-name">{user?.username}</div>
               <div className="user-role">{user?.rol}</div>
             </div>
           </div>
         </header>
+
         {/* 👇 Vista condicional según sección */}
         {section === "empleados" ? (
           // Módulo Empleados
           <AltaEmple />
+        ) : section === "logistica" ? (
+          // Módulo Logística con tabs
+          <section
+            className="welcome-card"
+            style={{ padding: 0, background: "transparent" }}
+          >
+            {/* Tabs */}
+            <div
+              style={{
+                display: "flex",
+                gap: 8,
+                padding: "10px 12px",
+                borderBottom: "1px solid var(--border, #e5e7eb)",
+                marginBottom: 16,
+              }}
+            >
+              <button
+                className={`btn ${
+                  logisticaTab === "camiones" ? "btn-primary" : ""
+                }`}
+                onClick={() => setLogisticaTab("camiones")}
+                type="button"
+              >
+                Camiones
+              </button>
+              <button
+                className={`btn ${
+                  logisticaTab === "asignaciones" ? "btn-primary" : ""
+                }`}
+                onClick={() => setLogisticaTab("asignaciones")}
+                type="button"
+              >
+                Asignaciones
+              </button>
+            </div>
+
+            {/* Contenido de cada tab */}
+            <div style={{ display: "grid", gap: 20 }}>
+              {logisticaTab === "camiones" ? (
+                <AltaCamion />
+              ) : (
+                <AsignacionesCamiones />
+              )}
+            </div>
+          </section>
+        ) : section === "asistencias" ? (
+          // Módulo Asistencias (manual)
+          <Asistencias />
         ) : section === "dashboard" ? (
           <>
             {/* Dashboard por defecto */}
             <section className="stats-grid">
-              <StatCard icon={BiCartAlt} title="Pedidos de hoy" value="—" hint="Sin datos aún" />
-              <StatCard icon={BiPackage} title="m³ producidos" value="—" hint="Conectar a producción" />
-              <StatCard icon={BiTruck}   title="Camiones activos" value="—" hint="Conectar a logística" />
-              <StatCard icon={BiGroup}   title="Clientes activos" value="—" hint="Conectar a clientes" />
+              <StatCard
+                icon={BiCartAlt}
+                title="Pedidos de hoy"
+                value="—"
+                hint="Sin datos aún"
+              />
+              <StatCard
+                icon={BiPackage}
+                title="m³ producidos"
+                value="—"
+                hint="Conectar a producción"
+              />
+              <StatCard
+                icon={BiTruck}
+                title="Camiones activos"
+                value="—"
+                hint="Conectar a logística"
+              />
+              <StatCard
+                icon={BiGroup}
+                title="Clientes activos"
+                value="—"
+                hint="Conectar a clientes"
+              />
             </section>
 
             <section className="welcome-card">
               <h2>Bienvenido/a, {user?.username}</h2>
               <p>
-                Este es tu panel principal. Desde la barra lateral podés navegar a{" "}
-                <strong>Empleados</strong>, <strong>Clientes</strong>, <strong>Pedidos</strong> y más.
-                Vamos a ir habilitando cada módulo a medida que lo implementemos.
+                Este es tu panel principal. Desde la barra lateral podés navegar
+                a <strong>Empleados</strong>, <strong>Clientes</strong>,{" "}
+                <strong>Pedidos</strong> y más. Vamos a ir habilitando cada
+                módulo a medida que lo implementemos.
               </p>
             </section>
           </>
-        ) : section === "logistica" ? (
-          // 👇 Acá mostramos el alta/listado de camiones
-          <AltaCamion />
         ) : (
           // Placeholder para secciones no implementadas
           <section className="welcome-card">
@@ -180,7 +261,6 @@ export default memo(function Home({ user, onLogout }) {
             <p>Sección en construcción.</p>
           </section>
         )}
-
       </main>
     </div>
   );
