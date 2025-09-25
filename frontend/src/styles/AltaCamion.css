@@ -1,0 +1,131 @@
+/* ===== Visual para Logística: Camiones ===== */
+
+.camion-form-card,
+.camion-table-card {
+  /* mismas bases que emp-card, solo ajustamos spacing */
+  padding: 18px;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.card-subtitle {
+  color: #6b7280; /* gris medio */
+  font-size: 0.92rem;
+  margin-top: 4px;
+}
+
+.right-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-input {
+  padding: 8px 10px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.95rem;
+  width: 260px;
+}
+.search-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Tabla compacta: más prolija */
+.table-compact {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.table-compact thead th {
+  text-align: left;
+  color: #6b7280;
+  font-weight: 600;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+.table-compact tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border, #f1f5f9);
+}
+.table-compact tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* monospace para patentes p/que queden prolijas */
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0.2px;
+}
+
+/* Badge de estado */
+.badge {
+  display: inline-block;
+  font-size: 0.82rem;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+.badge.ok {
+  background: #e6fbe6;
+  color: #0f5132;
+  border-color: #badbcc;
+}
+.badge.off {
+  background: #fff3cd;
+  color: #664d03;
+  border-color: #ffe69c;
+}
+
+/* Contenedor con sombra al scrollear (suave) */
+.scroll-shadow {
+  max-height: 420px; /* ajustable */
+  overflow: auto;
+  position: relative;
+}
+
+/* Botones */
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 9px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn:hover {
+  background: #1e4ddb;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.btn-light {
+  background: #f3f4f6;
+  color: #111827;
+}
+.btn-light:hover {
+  background: #e5e7eb;
+}
+
+/* Texto auxiliar */
+.hint {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-top: 8px;
+}

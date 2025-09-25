@@ -12,7 +12,8 @@ import {
 } from "react-icons/bi";
 import AltaEmple from "../components/AltaEmple";
 import AltaCamion from "../components/AltaCamion";
-import Asistencias from "../components/Asistencias";
+import AsistenciasQR from "../components/AsistenciasQR";
+
 import AsignacionesCamiones from "../components/AsignacionesCamiones"; // 👈 ya lo veníamos usando
 
 /** Botón del sidebar (reutilizable) */
@@ -56,7 +57,8 @@ export default memo(function Home({ user, onLogout }) {
   const [section, setSection] = useState("dashboard");
 
   // 👇 tab actual dentro de Logística
-  const [logisticaTab, setLogisticaTab] = useState("camiones"); // "camiones" | "asignaciones"
+  //    ⬇️ por defecto dejamos ASIGNACIONES (lo que pediste)
+  const [logisticaTab, setLogisticaTab] = useState("asignaciones"); // "camiones" | "asignaciones"
 
   // Cambia de vista al tocar el sidebar
   const handleNav = (next) => setSection(next);
@@ -121,8 +123,8 @@ export default memo(function Home({ user, onLogout }) {
             active={section === "logistica"}
             onClick={() => {
               setSection("logistica");
-              // opcional: cuando entrás a logística, dejá por defecto "camiones"
-              setLogisticaTab((prev) => prev || "camiones");
+              // 👉 cada vez que entrás a logística, dejamos por defecto "asignaciones"
+              setLogisticaTab("asignaciones");
             }}
           />
           <SidebarItem
@@ -167,7 +169,7 @@ export default memo(function Home({ user, onLogout }) {
           // Módulo Empleados
           <AltaEmple />
         ) : section === "logistica" ? (
-          // Módulo Logística con tabs
+          // Módulo Logística con tabs (adentro de Home, sin crear otro componente)
           <section
             className="welcome-card"
             style={{ padding: 0, background: "transparent" }}
@@ -188,6 +190,7 @@ export default memo(function Home({ user, onLogout }) {
                 }`}
                 onClick={() => setLogisticaTab("camiones")}
                 type="button"
+                title="Ver/crear camiones"
               >
                 Camiones
               </button>
@@ -197,6 +200,7 @@ export default memo(function Home({ user, onLogout }) {
                 }`}
                 onClick={() => setLogisticaTab("asignaciones")}
                 type="button"
+                title="Asignar camiones a choferes"
               >
                 Asignaciones
               </button>
@@ -212,8 +216,7 @@ export default memo(function Home({ user, onLogout }) {
             </div>
           </section>
         ) : section === "asistencias" ? (
-          // Módulo Asistencias (manual)
-          <Asistencias />
+          <AsistenciasQR />
         ) : section === "dashboard" ? (
           <>
             {/* Dashboard por defecto */}

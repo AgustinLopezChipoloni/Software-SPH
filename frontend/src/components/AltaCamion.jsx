@@ -1,11 +1,11 @@
 // frontend/src/components/AltaCamion.jsx
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
+import "../styles/AltaCamion.css"; // 👈 dejamos este CSS
 
 /**
  * Alta y listado de camiones
  * - Reutiliza las clases CSS de AltaEmple (emp-layout, emp-card, emp-form, etc.)
- *   para mantener el mismo look & feel sin agregar un CSS nuevo.
  */
 
 const initial = {
@@ -22,6 +22,7 @@ export default function AltaCamion() {
   const [form, setForm] = useState(initial);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
+  const [filtro, setFiltro] = useState("");
 
   const cargar = async () => {
     const { data } = await api.get("/api/camiones");
@@ -53,10 +54,28 @@ export default function AltaCamion() {
     }
   };
 
+  // Filtro simple
+  const listaFiltrada = lista.filter((c) => {
+    const q = filtro.trim().toLowerCase();
+    if (!q) return true;
+    const blob = `${c.patente} ${c.marca || ""} ${
+      c.modelo || ""
+    }`.toLowerCase();
+    return blob.includes(q);
+  });
+
   return (
-    <div className="emp-layout">{/* Reutilizamos layout de empleados */}
-      <div className="emp-card">
-        <h2>Alta de Camión</h2>
+    <div className="emp-layout">
+      <div className="emp-card camion-form-card">
+        <div className="card-head">
+          <div>
+            <h2>Alta de Camión</h2>
+            <p className="card-subtitle">
+              Registrá nuevos camiones y su capacidad
+            </p>
+          </div>
+        </div>
+
         <form className="emp-form" onSubmit={onSubmit}>
           <div className="row">
             <div className="col">
@@ -132,42 +151,68 @@ export default function AltaCamion() {
 
           {msg && <div className="emp-msg">{msg}</div>}
 
-          <button className="btn" disabled={loading}>
-            {loading ? "Guardando..." : "Guardar camión"}
-          </button>
+          <div className="actions">
+            <button className="btn" disabled={loading}>
+              {loading ? "Guardando..." : "Guardar camión"}
+            </button>
+            <button
+              type="button"
+              className="btn btn-light"
+              onClick={() => setForm(initial)}
+              disabled={loading}
+              title="Limpiar formulario"
+            >
+              Limpiar
+            </button>
+          </div>
         </form>
       </div>
 
-      <div className="emp-card">
-        <h2>Camiones</h2>
-        <div className="emp-table">
-          <table>
+      <div className="emp-card camion-table-card">
+        <div className="card-head">
+          <h2>Camiones</h2>
+          <div className="right-tools">
+            <input
+              className="search-input"
+              placeholder="Buscar por patente, marca, modelo…"
+              value={filtro}
+              onChange={(e) => setFiltro(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="emp-table scroll-shadow">
+          <table className="table-compact">
             <thead>
               <tr>
-                <th>ID</th>
+                {/* <th>ID</th> */}
                 <th>Patente</th>
                 <th>Marca</th>
                 <th>Modelo</th>
                 <th>Año</th>
                 <th>Cap. (m³)</th>
-                <th>Activo</th>
+                <th>Estado</th>
               </tr>
             </thead>
             <tbody>
-              {lista.map((c) => (
+              {listaFiltrada.map((c) => (
                 <tr key={c.id}>
-                  <td>{c.id}</td>
-                  <td>{c.patente}</td>
+                  {/* <td>{c.id}</td> */}
+                  <td className="mono">{c.patente}</td>
                   <td>{c.marca || "—"}</td>
                   <td>{c.modelo || "—"}</td>
                   <td>{c.anio || "—"}</td>
                   <td>{c.capacidad_m3 ?? "—"}</td>
-                  <td>{c.activo ? "Sí" : "No"}</td>
+                  <td>
+                    <span className={`badge ${c.activo ? "ok" : "off"}`}>
+                      {c.activo ? "Activo" : "Inactivo"}
+                    </span>
+                  </td>
                 </tr>
               ))}
-              {lista.length === 0 && (
+              {listaFiltrada.length === 0 && (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: "center" }}>
+                  <td colSpan="6" style={{ textAlign: "center" }}>
                     Sin camiones
                   </td>
                 </tr>
@@ -175,6 +220,11 @@ export default function AltaCamion() {
             </tbody>
           </table>
         </div>
+
+        <p className="hint">
+          Consejo: filtrá por patente/marca/modelo con el buscador de la
+          derecha.
+        </p>
       </div>
     </div>
   );

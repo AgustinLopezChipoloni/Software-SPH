@@ -29,6 +29,11 @@ app.use("/api/empleados", empleadosRoutes);
 app.use("/api/camiones", camionesRoutes); // 👈 monta las rutas de camiones
 app.use("/api/asistencias", asistenciasRoutes);
 app.use("/api/asignaciones", asignacionesRoutes);
-
+/*
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
+*/
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Servidor corriendo en http://0.0.0.0:${PORT}`);
+});

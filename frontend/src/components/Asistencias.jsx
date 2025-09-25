@@ -2,13 +2,24 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "../services/api";
 import "../styles/Asistencias.css"; // opcional
 
+/**
+ * Asistencias (Manual)
+ * - Lista empleados y asistencias de hoy.
+ * - Permite marcar manualmente ENTRADA y SALIDA.
+ * - Usa endpoints:
+ *     GET /api/empleados
+ *     GET /api/asistencias/hoy
+ *     POST /api/asistencias/check-in  { empleado_id }
+ *     POST /api/asistencias/check-out { empleado_id }
+ */
 export default function Asistencias() {
   const [empleados, setEmpleados] = useState([]);
-  const [hoy, setHoy] = useState([]);
-  const [q, setQ] = useState("");
+  const [hoy, setHoy] = useState([]); // asistencias del día
+  const [q, setQ] = useState(""); // búsqueda
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
 
+  // Carga inicial de empleados y asistencias del día
   const cargar = async () => {
     const [empRes, hoyRes] = await Promise.all([
       api.get("/api/empleados"),
@@ -22,12 +33,14 @@ export default function Asistencias() {
     cargar();
   }, []);
 
+  // Map rápido: empleado_id → asistencia de hoy
   const mapHoy = useMemo(() => {
     const m = new Map();
     for (const a of hoy) m.set(a.empleado_id, a);
     return m;
   }, [hoy]);
 
+  // Filtro por nombre o DNI
   const fil = useMemo(() => {
     const qq = q.trim().toLowerCase();
     if (!qq) return empleados;
@@ -36,6 +49,7 @@ export default function Asistencias() {
     );
   }, [empleados, q]);
 
+  // Marca manual: 'in' (entrada) o 'out' (salida)
   const marcar = async (empleado_id, tipo) => {
     try {
       setLoading(true);
@@ -45,7 +59,7 @@ export default function Asistencias() {
       } else {
         await api.post("/api/asistencias/check-out", { empleado_id });
       }
-      await cargar();
+      await cargar(); // refrescamos la tabla
       setMsg("Marcación registrada.");
     } catch (e) {
       setMsg(e?.response?.data?.error || "Error al marcar");
@@ -81,6 +95,7 @@ export default function Asistencias() {
           </thead>
           <tbody>
             {fil.map((e) => {
+              // Sacamos la asistencia del empleado si existe
               const a = mapHoy.get(e.id);
               return (
                 <tr key={e.id}>
@@ -100,12 +115,15 @@ export default function Asistencias() {
                   </td>
                   <td>{a?.estado || "—"}</td>
                   <td>
+                    {/* Entró: deshabilitado si ya hay check_in */}
                     <button
                       disabled={loading || a?.check_in}
                       onClick={() => marcar(e.id, "in")}
                     >
                       Entró
                     </button>
+
+                    {/* Salió: requiere tener check_in y no tener check_out */}
                     <button
                       disabled={loading || !a?.check_in || a?.check_out}
                       onClick={() => marcar(e.id, "out")}
