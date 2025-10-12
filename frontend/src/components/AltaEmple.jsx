@@ -4,7 +4,7 @@ import { api } from "../services/api";
 import "../styles/AltaEmple.css";
 import QRCode from "react-qr-code"; // ⬅️ para renderizar el código QR
 
-// ⬇️ NUEVO: agregamos cargo_nombre para enviar al backend
+// NUEVO: agregamos cargo_nombre para enviar al backend
 const initial = {
   nombre: "",
   apellido: "",
@@ -201,7 +201,8 @@ export default function Employees() {
                 <th>Ingreso</th>
                 <th>Activo</th>
                 <th>Cargo</th>
-                <th>QR</th> {/* ⬅️ NUEVA columna */}
+                <th>QR</th>
+                <th>Edicion</th>
               </tr>
             </thead>
             <tbody>
@@ -226,6 +227,13 @@ export default function Employees() {
                       QR
                     </button>
                   </td>
+                  <td>
+                    <button 
+                      className="btn btn-edit"
+                      >
+                      Editar
+                    </button>
+                  </td>
                 </tr>
               ))}
               {lista.length === 0 && (
@@ -240,7 +248,6 @@ export default function Employees() {
         </div>
       </div>
 
-      {/* ⬇️ Modal QR */}
       {showQR && (
         <div
           className="modal-backdrop"

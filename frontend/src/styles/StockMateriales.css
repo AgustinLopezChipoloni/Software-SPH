@@ -1,0 +1,161 @@
+.stock-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+}
+
+.stock-subtitle {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+}
+
+.stock-msg {
+  color: #375aa0;
+  font-size: 0.95rem;
+}
+
+.stock-error {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+/* --- Tarjetas --- */
+.tarjetas-stock {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* ✅ 4 columnas en una sola fila */
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  max-width: 1300px; /* un poco más ancho */
+  margin: 0 auto;
+}
+
+/* Mantiene la forma cuadrada y el estilo */
+.tarjeta-material {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 24px;
+  aspect-ratio: 1 / 1; /* ✅ hace que la tarjeta sea cuadrada */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+}
+
+.tarjeta-material:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+/* Título (nombre del material) */
+.tarjeta-header h3 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: #111827;
+  text-align: center;
+}
+
+/* Centra la cantidad verticalmente */
+.tarjeta-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cantidad */
+.cantidad {
+  color: #374151;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.cantidad span {
+  font-weight: 700;
+  color: #e21313;
+}
+
+/* Botones */
+.tarjeta-botones {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.btn-agregar-stock {
+  background: #8b948e;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 1rem;
+}
+.btn-agregar-stock:hover {
+  background: #8e9992;
+}
+
+/* Tarjeta agregar */
+.tarjeta-agregar {
+  margin-top: 14px;
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.05);
+}
+
+.tarjeta-agregar input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  margin-bottom: 8px;
+}
+
+.tarjeta-agregar-btns {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btn-confirmar {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.btn-confirmar:hover {
+  background: #1d1e1f;
+}
+
+.btn-cancelar {
+  background: #9ca3af;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.btn-cancelar:hover {
+  background: #6b7280;
+}
+
+/* --- Responsivo --- */
+@media (max-width: 1000px) {
+  .tarjetas-stock {
+    grid-template-columns: repeat(2, 1fr); /* ✅ 2x2 en pantallas medianas */
+  }
+}
+
+@media (max-width: 600px) {
+  .tarjetas-stock {
+    grid-template-columns: 1fr; /* ✅ 1 por fila en celulares */
+  }
+}
+

@@ -28,3 +28,4 @@ export const pool = mysql.createPool({
   // Opcional pero útil: devuelve DATE/DATETIME como string "YYYY-MM-DD"
   dateStrings: true
 });
+

@@ -7,6 +7,7 @@ import empleadosRoutes from "./routes/empleados.routes.js";
 import camionesRoutes from "./routes/camiones.routes.js";
 import asistenciasRoutes from "./routes/asistencias.routes.js";
 import asignacionesRoutes from "./routes/asignaciones.routes.js";
+import materialesRoutes from "./routes/materiales.routes.js";
 dotenv.config();
 const app = express();
 app.use(cors());
@@ -29,6 +30,7 @@ app.use("/api/empleados", empleadosRoutes);
 app.use("/api/camiones", camionesRoutes); // 👈 monta las rutas de camiones
 app.use("/api/asistencias", asistenciasRoutes);
 app.use("/api/asignaciones", asignacionesRoutes);
+app.use("/api/materiales", materialesRoutes);
 /*
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));

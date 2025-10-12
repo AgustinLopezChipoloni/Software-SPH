@@ -13,6 +13,9 @@ import {
 import AltaEmple from "../components/AltaEmple";
 import AltaCamion from "../components/AltaCamion";
 import AsistenciasQR from "../components/AsistenciasQR";
+import StockMateriales from "../components/StockMateriales";
+
+
 
 import AsignacionesCamiones from "../components/AsignacionesCamiones"; // 👈 ya lo veníamos usando
 
@@ -217,6 +220,8 @@ export default memo(function Home({ user, onLogout }) {
           </section>
         ) : section === "asistencias" ? (
           <AsistenciasQR />
+          ) : section === "stock" ? (      // 👈 Agregá este bloque
+          <StockMateriales />
         ) : section === "dashboard" ? (
           <>
             {/* Dashboard por defecto */}
