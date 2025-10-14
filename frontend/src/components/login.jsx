@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { api } from "../services/api";
-import "../styles/Login.css";   // 👈 importamos desde styles
+import "../styles/Login.css";
 
 export default function Login({ onLogin }) {
   const [username, setUsername] = useState("");

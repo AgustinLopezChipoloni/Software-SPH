@@ -40,7 +40,7 @@
   place-items: center;
   font-weight: 800;
   letter-spacing: 0.5px;
-  background: #1e88e5;
+  background: #cf141e;
   color: #fff;
 }
 
@@ -114,7 +114,7 @@
   height: 44px;
   border: none;
   border-radius: 10px;
-  background: #1e88e5;
+  background: #ee2042;
   color: #fff;
   font-weight: 700;
   font-size: 15px;
@@ -140,9 +140,9 @@
     padding: 20px;
   }
 }
-/* borrar despues  */
+
 .login-page {
-  background-image: url("../img/messicopa.jpg");
-  background-size: cover;              /* que cubra toda la pantalla */
+  background-image: url("../img/logo-2.jpg");
+  background-size: cover;
   background-position: center;   
 }

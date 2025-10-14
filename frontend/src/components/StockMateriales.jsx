@@ -15,7 +15,7 @@ export default function StockMateriales() {
       setMateriales(res.data);
     } catch (err) {
       console.error(err);
-      setError("❌ Error al obtener materiales");
+      setError("Error al obtener materiales");
     } finally {
       setLoading(false);
     }
@@ -38,7 +38,7 @@ export default function StockMateriales() {
       setMostrarAgregar(null);
       setCantidadAgregar("");
     } catch {
-      alert("❌ No se pudo actualizar el stock.");
+      alert("No se pudo actualizar el stock.");
     }
   };
 

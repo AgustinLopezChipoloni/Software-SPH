@@ -14,10 +14,8 @@ import AltaEmple from "../components/AltaEmple";
 import AltaCamion from "../components/AltaCamion";
 import AsistenciasQR from "../components/AsistenciasQR";
 import StockMateriales from "../components/StockMateriales";
-
-
-
-import AsignacionesCamiones from "../components/AsignacionesCamiones"; // 👈 ya lo veníamos usando
+import Clientes from "../components/clientes";
+import AsignacionesCamiones from "../components/AsignacionesCamiones";
 
 /** Botón del sidebar (reutilizable) */
 function SidebarItem({ icon: Icon, label, active, onClick }) {
@@ -220,8 +218,10 @@ export default memo(function Home({ user, onLogout }) {
           </section>
         ) : section === "asistencias" ? (
           <AsistenciasQR />
-          ) : section === "stock" ? (      // 👈 Agregá este bloque
+          ) : section === "stock" ? (  
           <StockMateriales />
+          ) : section === "clientes" ? (
+          <Clientes />
         ) : section === "dashboard" ? (
           <>
             {/* Dashboard por defecto */}
