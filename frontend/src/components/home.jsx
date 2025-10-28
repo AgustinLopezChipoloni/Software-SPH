@@ -1,15 +1,18 @@
-import { memo, useState } from "react";
+// frontend/src/pages/Home.jsx
+import { memo, useState, useRef, useEffect } from "react";
 import "../styles/home.css";
 import {
   BiUser,
   BiGroup,
   BiCartAlt,
   BiPackage,
-  BiBus as BiTruck, // 👈 Alias: usamos BiBus pero lo llamamos BiTruck para no tocar el resto
+  BiBus as BiTruck,
   BiLogOut,
-  BiCog,
   BiBarChart,
+  BiChevronLeft,
+  BiMenu,
 } from "react-icons/bi";
+import { api } from "../services/api"; // ⬅️ NUEVO: para pedir camiones
 import AltaEmple from "../components/AltaEmple";
 import AltaCamion from "../components/AltaCamion";
 import AsistenciasQR from "../components/AsistenciasQR";
@@ -31,10 +34,16 @@ function SidebarItem({ icon: Icon, label, active, onClick }) {
   );
 }
 
-/** Tarjeta de métrica (para el dashboard) */
-function StatCard({ icon: Icon, title, value, hint }) {
+/** Card del dashboard (ahora soporta onClick) */
+function StatCard({ icon: Icon, title, value, hint, onClick }) {
+  const clickable = typeof onClick === "function";
   return (
-    <div className="stat-card">
+    <div
+      className={`stat-card ${clickable ? "is-clickable" : ""}`} // ⬅️ cursor pointer
+      onClick={onClick} // ⬅️ navega si hay handler
+      role={clickable ? "button" : undefined}
+      tabIndex={clickable ? 0 : undefined}
+    >
       <div className="stat-icon-wrap">
         <Icon className="stat-icon" />
       </div>
@@ -47,24 +56,33 @@ function StatCard({ icon: Icon, title, value, hint }) {
   );
 }
 
-/**
- * HOME
- * - Estado `section` para saber qué vista mostrar.
- * - Al clickear en el sidebar, actualizamos `section`.
- * - Render condicional según `section`.
- */
 export default memo(function Home({ user, onLogout }) {
-  // 👇 sección actual. Arrancamos en "dashboard".
   const [section, setSection] = useState("dashboard");
+  const [logisticaTab, setLogisticaTab] = useState("asignaciones");
 
-  // 👇 tab actual dentro de Logística
-  //    ⬇️ por defecto dejamos ASIGNACIONES (lo que pediste)
-  const [logisticaTab, setLogisticaTab] = useState("asignaciones"); // "camiones" | "asignaciones"
+  // Sidebar abierto/cerrado
+  const [sidebarAbierto, setSidebarAbierto] = useState(true);
 
-  // Cambia de vista al tocar el sidebar
+  // Menú de usuario
+  const [userOpen, setUserOpen] = useState(false);
+  const userRef = useRef(null);
+
+  // ⬅️ NUEVO: cantidad de camiones activos
+  const [camionesActivos, setCamionesActivos] = useState(null);
+
+  // Cierra el menú del usuario si hace click afuera
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (userRef.current && !userRef.current.contains(e.target)) {
+        setUserOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleNav = (next) => setSection(next);
 
-  // Título dinámico
   const titleMap = {
     dashboard: "Dashboard",
     empleados: "Empleados",
@@ -77,17 +95,46 @@ export default memo(function Home({ user, onLogout }) {
   };
   const currentTitle = titleMap[section] || "Panel";
 
+  // ====== NUEVO: cargo cantidad de camiones activos ======
+  useEffect(() => {
+    async function cargarActivos() {
+      try {
+        const { data } = await api.get("/api/camiones");
+        const activos = data.filter((c) => Number(c.activo) === 1).length;
+        setCamionesActivos(activos);
+      } catch (e) {
+        setCamionesActivos("—"); // fallback
+      }
+    }
+    cargarActivos();
+  }, []); // con montar alcanza para el dashboard
+
+  // Handler para ir directo a Logística → Camiones
+  const irALogisticaCamiones = () => {
+    setSection("logistica");
+    setLogisticaTab("camiones");
+  };
+
   return (
-    <div className="home-layout">
-      {/* Sidebar */}
-      <aside className="sidebar">
+    <div className={`home-layout ${sidebarAbierto ? "" : "sidebar-collapsed"}`}>
+      {/* ===== Sidebar ===== */}
+      <aside className={`sidebar ${sidebarAbierto ? "" : "is-collapsed"}`}>
         <div className="brand">
-          <div className="brand-logo">SIGPH</div>
-          <div className="brand-name">Panel</div>
+          <div className="brand-left">
+            <div className="brand-logo">SIGPH</div>
+            <div className="brand-name">Panel</div>
+          </div>
+          <button
+            className="side-toggle"
+            type="button"
+            title="Cerrar menú"
+            onClick={() => setSidebarAbierto(false)}
+          >
+            <BiChevronLeft />
+          </button>
         </div>
 
         <nav className="side-nav">
-          {/* Activo = coincide con la sección actual */}
           <SidebarItem
             icon={BiBarChart}
             label="Dashboard"
@@ -119,34 +166,39 @@ export default memo(function Home({ user, onLogout }) {
             onClick={() => handleNav("stock")}
           />
           <SidebarItem
-            icon={BiTruck} // 👈 ahora apunta al alias de BiBus
+            icon={BiTruck}
             label="Logística"
             active={section === "logistica"}
             onClick={() => {
               setSection("logistica");
-              // 👉 cada vez que entrás a logística, dejamos por defecto "asignaciones"
               setLogisticaTab("asignaciones");
             }}
           />
           <SidebarItem
-            icon={BiUser} // si querés otro icono después lo cambiamos
+            icon={BiUser}
             label="Asistencias"
             active={section === "asistencias"}
             onClick={() => handleNav("asistencias")}
           />
         </nav>
-
-        <button className="btn-logout" type="button" onClick={onLogout}>
-          <BiLogOut className="logout-icon" /> Salir
-        </button>
       </aside>
 
-      {/* Contenido */}
+      {/* ===== Contenido ===== */}
       <main className="content">
         {/* Topbar */}
         <header className="topbar">
           <div className="top-title">
-            {/* Título dinámico por sección */}
+            {!sidebarAbierto && (
+              <button
+                className="menu-trigger"
+                type="button"
+                title="Abrir menú"
+                onClick={() => setSidebarAbierto(true)}
+              >
+                <BiMenu />
+              </button>
+            )}
+
             <h1>{currentTitle}</h1>
             <p className="top-subtitle">
               {section === "dashboard"
@@ -154,28 +206,47 @@ export default memo(function Home({ user, onLogout }) {
                 : "Gestión de " + currentTitle.toLowerCase()}
             </p>
           </div>
-          <div className="user-chip" title={`${user?.username} (${user?.rol})`}>
-            <div className="user-avatar">
-              {(user?.username || "U")[0].toUpperCase()}
-            </div>
-            <div className="user-meta">
-              <div className="user-name">{user?.username}</div>
-              <div className="user-role">{user?.rol}</div>
-            </div>
+
+          {/* Usuario */}
+          <div className="user-wrap" ref={userRef}>
+            <button
+              type="button"
+              className="user-chip"
+              title={`${user?.username} (${user?.rol})`}
+              onClick={() => setUserOpen((v) => !v)}
+            >
+              <div className="user-avatar">
+                {(user?.username || "U")[0].toUpperCase()}
+              </div>
+              <div className="user-meta">
+                <div className="user-name">{user?.username}</div>
+                <div className="user-role">{user?.rol}</div>
+              </div>
+            </button>
+
+            {userOpen && (
+              <div className="user-menu">
+                <button
+                  type="button"
+                  className="user-menu-item danger"
+                  onClick={onLogout}
+                >
+                  <BiLogOut style={{ marginRight: 8 }} />
+                  Cerrar sesión
+                </button>
+              </div>
+            )}
           </div>
         </header>
 
-        {/* 👇 Vista condicional según sección */}
+        {/* Contenido por sección */}
         {section === "empleados" ? (
-          // Módulo Empleados
           <AltaEmple />
         ) : section === "logistica" ? (
-          // Módulo Logística con tabs (adentro de Home, sin crear otro componente)
           <section
             className="welcome-card"
             style={{ padding: 0, background: "transparent" }}
           >
-            {/* Tabs */}
             <div
               style={{
                 display: "flex",
@@ -207,7 +278,6 @@ export default memo(function Home({ user, onLogout }) {
               </button>
             </div>
 
-            {/* Contenido de cada tab */}
             <div style={{ display: "grid", gap: 20 }}>
               {logisticaTab === "camiones" ? (
                 <AltaCamion />
@@ -218,13 +288,12 @@ export default memo(function Home({ user, onLogout }) {
           </section>
         ) : section === "asistencias" ? (
           <AsistenciasQR />
-          ) : section === "stock" ? (  
+        ) : section === "stock" ? (
           <StockMateriales />
-          ) : section === "clientes" ? (
+        ) : section === "clientes" ? (
           <Clientes />
         ) : section === "dashboard" ? (
           <>
-            {/* Dashboard por defecto */}
             <section className="stats-grid">
               <StatCard
                 icon={BiCartAlt}
@@ -241,14 +310,9 @@ export default memo(function Home({ user, onLogout }) {
               <StatCard
                 icon={BiTruck}
                 title="Camiones activos"
-                value="—"
-                hint="Conectar a logística"
-              />
-              <StatCard
-                icon={BiGroup}
-                title="Clientes activos"
-                value="—"
-                hint="Conectar a clientes"
+                value={camionesActivos ?? "—"} // ⬅️ muestra cantidad
+                hint="Ir a logística"
+                onClick={irALogisticaCamiones} // ⬅️ navega al módulo
               />
             </section>
 
@@ -263,7 +327,6 @@ export default memo(function Home({ user, onLogout }) {
             </section>
           </>
         ) : (
-          // Placeholder para secciones no implementadas
           <section className="welcome-card">
             <h2>{currentTitle}</h2>
             <p>Sección en construcción.</p>

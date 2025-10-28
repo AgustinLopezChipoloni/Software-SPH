@@ -1,0 +1,117 @@
+/* ====== Layout superior: escáner (izq) + último resultado (der) ====== */
+.asis-top {
+  display: grid;
+  grid-template-columns: 420px 1fr; /* izquierda fijo, derecha se estira */
+  gap: 16px;
+  align-items: start;
+}
+
+/* Permite que la tarjeta de la derecha ocupe bien el espacio */
+.ultimo-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Placeholder cuando no hay lecturas */
+.ultimo-placeholder {
+  border: 1px dashed var(--border, #e5e7eb);
+  border-radius: 12px;
+  padding: 16px;
+  color: #64748b;
+  background: #f8fafc;
+}
+
+/* ====== Escáner (opción 2) ====== */
+.qr-card {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 14px;
+  background: #fff;
+  padding: 12px;
+  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.06);
+  max-width: 420px;
+}
+
+.qr-toolbar {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.qr-box {
+  border: 2px dashed #94a3b8; /* borde punteado */
+  border-radius: 12px;
+  padding: 10px;
+  background: #f8fafc;
+}
+
+.qr-hint {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: #64748b;
+  text-align: center;
+}
+
+/* ====== Último resultado (opción 3) ====== */
+.ultimo-card {
+  border-left: 6px solid #cbd5e1; /* default gris */
+}
+
+.ultimo-card .ultimo-head {
+  margin-bottom: 8px;
+}
+
+.ultimo-nombre {
+  margin: 0 0 6px 0;
+  color: #0f172a;
+}
+
+.ultimo-horas {
+  display: flex;
+  gap: 14px;
+  color: #334155;
+  font-size: 14px;
+}
+
+/* colores por acción */
+.ultimo-entrada {
+  border-left-color: #16a34a;
+  background: #f0fdf4;
+}
+.ultimo-salida {
+  border-left-color: #2563eb;
+  background: #eef2ff;
+}
+.ultimo-completo {
+  border-left-color: #64748b;
+  background: #f8fafc;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+.badge-entrada {
+  background: #dcfce7;
+  color: #166534;
+}
+.badge-salida {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.badge-completo {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+/* Responsivo: apilamos en pantallas chicas */
+@media (max-width: 900px) {
+  .asis-top {
+    grid-template-columns: 1fr;
+  }
+}

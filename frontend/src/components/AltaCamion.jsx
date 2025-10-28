@@ -1,13 +1,8 @@
-// frontend/src/components/AltaCamion.jsx
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
-import "../styles/AltaCamion.css"; // 👈 dejamos este CSS
+import "../styles/AltaCamion.css";
 
-/**
- * Alta y listado de camiones
- * - Reutiliza las clases CSS de AltaEmple (emp-layout, emp-card, emp-form, etc.)
- */
-
+/** Alta y listado de camiones */
 const initial = {
   patente: "",
   marca: "",
@@ -24,11 +19,16 @@ export default function AltaCamion() {
   const [msg, setMsg] = useState("");
   const [filtro, setFiltro] = useState("");
 
+  // === NUEVO: modal de edición (activar/desactivar o eliminar) ===
+  const [editOpen, setEditOpen] = useState(false);
+  const [camEdit, setCamEdit] = useState(null);
+  const [activoEdit, setActivoEdit] = useState(true);
+  const [saving, setSaving] = useState(false);
+
   const cargar = async () => {
     const { data } = await api.get("/api/camiones");
     setLista(data);
   };
-
   useEffect(() => {
     cargar();
   }, []);
@@ -64,8 +64,52 @@ export default function AltaCamion() {
     return blob.includes(q);
   });
 
+  // === NUEVO: abre modal de edición con el estado actual ===
+  const abrirEditar = (camion) => {
+    setCamEdit(camion);
+    setActivoEdit(!!camion.activo);
+    setEditOpen(true);
+  };
+
+  // === NUEVO: guarda sólo 'activo' (PATCH /api/camiones/:id) ===
+  const guardarEstado = async () => {
+    if (!camEdit) return;
+    try {
+      setSaving(true);
+      await api.patch(`/api/camiones/${camEdit.id}`, {
+        activo: activoEdit ? 1 : 0,
+      });
+      await cargar();
+      setEditOpen(false);
+    } catch (e) {
+      alert(e?.response?.data?.error || "No se pudo actualizar el camión");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // === NUEVO: elimina camión (DELETE /api/camiones/:id) ===
+  const eliminarCamion = async () => {
+    if (!camEdit) return;
+    const ok = window.confirm(
+      `¿Eliminar definitivamente el camión ${camEdit.patente}?`
+    );
+    if (!ok) return;
+    try {
+      setSaving(true);
+      await api.delete(`/api/camiones/${camEdit.id}`);
+      await cargar();
+      setEditOpen(false);
+    } catch (e) {
+      alert(e?.response?.data?.error || "No se pudo eliminar el camión");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="emp-layout">
+      {/* --------- Formulario --------- */}
       <div className="emp-card camion-form-card">
         <div className="card-head">
           <div>
@@ -136,6 +180,7 @@ export default function AltaCamion() {
                 placeholder="7.50"
               />
             </div>
+            {/*
             <div className="col">
               <label className="chk" style={{ marginTop: 28 }}>
                 <input
@@ -147,6 +192,7 @@ export default function AltaCamion() {
                 <span>Activo</span>
               </label>
             </div>
+*/}
           </div>
 
           {msg && <div className="emp-msg">{msg}</div>}
@@ -168,6 +214,7 @@ export default function AltaCamion() {
         </form>
       </div>
 
+      {/* --------- Tabla --------- */}
       <div className="emp-card camion-table-card">
         <div className="card-head">
           <h2>Camiones</h2>
@@ -185,19 +232,19 @@ export default function AltaCamion() {
           <table className="table-compact">
             <thead>
               <tr>
-                {/* <th>ID</th> */}
                 <th>Patente</th>
                 <th>Marca</th>
                 <th>Modelo</th>
                 <th>Año</th>
                 <th>Cap. (m³)</th>
                 <th>Estado</th>
+                <th style={{ width: 1 }}>Editar</th>
+                {/* NUEVO */}
               </tr>
             </thead>
             <tbody>
               {listaFiltrada.map((c) => (
                 <tr key={c.id}>
-                  {/* <td>{c.id}</td> */}
                   <td className="mono">{c.patente}</td>
                   <td>{c.marca || "—"}</td>
                   <td>{c.modelo || "—"}</td>
@@ -208,11 +255,19 @@ export default function AltaCamion() {
                       {c.activo ? "Activo" : "Inactivo"}
                     </span>
                   </td>
+                  <td>
+                    <button
+                      className="btn btn-light"
+                      onClick={() => abrirEditar(c)}
+                    >
+                      Editar
+                    </button>
+                  </td>
                 </tr>
               ))}
               {listaFiltrada.length === 0 && (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: "center" }}>
+                  <td colSpan="7" style={{ textAlign: "center" }}>
                     Sin camiones
                   </td>
                 </tr>
@@ -226,6 +281,57 @@ export default function AltaCamion() {
           derecha.
         </p>
       </div>
+
+      {/* --------- Modal edición --------- */}
+      {editOpen && (
+        <div className="modal-backdrop" onClick={() => setEditOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Editar camión</h3>
+            <p className="modal-id">
+              <strong>{camEdit?.patente}</strong> {camEdit?.marca || ""}{" "}
+              {camEdit?.modelo || ""} — Año {camEdit?.anio || "—"}
+            </p>
+
+            <label className="chk">
+              <input
+                type="checkbox"
+                checked={activoEdit}
+                onChange={(e) => setActivoEdit(e.target.checked)}
+              />
+              <span>{activoEdit ? "Activo" : "Inactivo"}</span>
+            </label>
+
+            <div
+              className="modal-actions"
+              style={{ justifyContent: "space-between" }}
+            >
+              <button
+                className="btn btn-danger"
+                onClick={eliminarCamion}
+                disabled={saving}
+              >
+                Eliminar
+              </button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  className="btn btn-light"
+                  onClick={() => setEditOpen(false)}
+                  disabled={saving}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="btn"
+                  onClick={guardarEstado}
+                  disabled={saving}
+                >
+                  {saving ? "Guardando..." : "Guardar"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

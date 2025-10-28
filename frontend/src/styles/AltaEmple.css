@@ -1,46 +1,238 @@
+/* =============== LAYOUT GENERAL =============== */
 .emp-layout {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
   padding: 16px;
 }
-
 .emp-card {
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 14px;
-  box-shadow: 0 8px 20px rgba(16,24,40,.08), 0 2px 6px rgba(16,24,40,.06);
+  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.08),
+    0 2px 6px rgba(16, 24, 40, 0.06);
   padding: 16px;
 }
+.emp-card h2 {
+  margin: 0 0 10px 0;
+  color: #0f172a;
+}
 
-.emp-card h2 { margin: 0 0 10px 0; color: #0f172a; }
-
+/* =============== FORMULARIO (ALTA) =============== */
 .emp-form .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 10px;
+  gap: 14px;
+  margin-bottom: 12px;
 }
-.emp-form .col { display: flex; flex-direction: column; gap: 6px; }
-.emp-form label { font-size: 14px; font-weight: 600; color: #111827; }
+.emp-form .col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.emp-form label {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: #334155;
+}
+.emp-form .req {
+  color: #e11d48;
+}
 .emp-form input[type="text"],
 .emp-form input[type="email"],
-.emp-form input[type="date"] {
-  height: 40px; border: 1px solid #e5e7eb; border-radius: 10px; padding: 0 10px;
+.emp-form input[type="date"],
+.emp-form select {
+  height: 42px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0 12px;
+  background: #fff;
+  transition: border-color 0.12s, box-shadow 0.12s;
 }
-.chk { display: inline-flex; align-items: center; gap: 8px; }
+.emp-form input::placeholder {
+  color: #94a3b8;
+}
+.emp-form input:hover,
+.emp-form select:hover {
+  border-color: #d1d5db;
+}
+.emp-form input:focus,
+.emp-form select:focus {
+  outline: none;
+  border-color: #1e88e5;
+  box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.15);
+}
+.chk {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.chk input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #1e88e5;
+}
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
 
+/* Botones */
 .btn {
-  height: 42px; padding: 0 14px; border: 0; border-radius: 10px;
-  background: #1e88e5; color: #fff; font-weight: 700; cursor: pointer;
+  height: 42px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  background: #1e88e5;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-light {
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #e5e7eb;
+}
+.btn-edit {
+  background: #10b981;
+  color: #fff;
+}
+.btn-danger {
+  background: #ef4444;
+  color: #fff;
 }
 
-.emp-msg { margin: 6px 0 10px 0; color: #0f766e; }
+/* Mensaje */
+.emp-msg {
+  margin: 6px 0 10px 0;
+  color: #0f766e;
+}
 
-.emp-table table { width: 100%; border-collapse: collapse; }
-.emp-table th, .emp-table td { border: 1px solid #e5e7eb; padding: 8px; font-size: 14px; }
-.emp-table th { background: #f8fafc; text-align: left; }
+/* =============== LISTA (EMPLEADOS) =============== */
+.emp-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.emp-table th,
+.emp-table td {
+  border: 1px solid #e5e7eb;
+  padding: 8px;
+  font-size: 14px;
+}
+.emp-table th {
+  background: #f8fafc;
+  text-align: left;
+}
+.emp-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.emp-list-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.emp-search {
+  height: 38px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0 10px;
+  min-width: 240px;
+}
 
-@media (max-width: 720px){
-  .emp-form .row { grid-template-columns: 1fr; }
+/* =============== TABS (COMÚN) =============== */
+.emp-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.emp-tab {
+  border: 1px solid var(--border, #e5e7eb);
+  background: #fff;
+  color: #111827;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.emp-tab.active {
+  background: rgba(30, 136, 229, 0.08);
+  border-color: rgba(30, 136, 229, 0.25);
+  color: #1e88e5;
+}
+
+/* =============== MODALES (comunes) =============== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+}
+.modal {
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  min-width: 320px;
+  max-width: 480px;
+}
+.modal-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.modal-input {
+  width: 100%;
+  height: 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0 10px;
+}
+.modal-select {
+  width: 100%;
+  height: 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0 10px;
+  background: #fff;
+}
+.modal-id {
+  margin: 6px 0 10px;
+  color: #334155;
+}
+.modal-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-id {
+  color: black;
+}
+.btn.btn-danger {
+  background: #ef4444 !important;
+  border: 1px solid #dc2626 !important;
+  padding-bottom: 5px;
+  padding-top: 5px;
+}
+.btn.btn-danger:hover {
+  background: #dc2626 !important;
+  border-color: #b91c1c !important;
+}
+
+/* =============== RESPONSIVE =============== */
+@media (max-width: 720px) {
+  .emp-form .row {
+    grid-template-columns: 1fr;
+  }
+  .emp-search {
+    min-width: 160px;
+  }
 }

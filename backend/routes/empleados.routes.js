@@ -1,11 +1,10 @@
-// backend/routes/empleados.routes.js
 import { Router } from "express";
 import { pool } from "../db.js";
-import { v4 as uuidv4 } from "uuid"; // ⬅️ agregado arriba (import único)
+import { v4 as uuidv4 } from "uuid";
 
 const router = Router();
 
-/** GET /api/empleados → listar empleados (ahora incluye cargo) */
+/** GET /api/empleados -> lista (incluye cargo) */
 router.get("/", async (_req, res) => {
   try {
     const [rows] = await pool.query(
@@ -22,7 +21,7 @@ router.get("/", async (_req, res) => {
   }
 });
 
-/** POST /api/empleados → alta empleado (con cargo_nombre opcional) */
+/** POST /api/empleados -> alta (acepta cargo_nombre opcional) */
 router.post("/", async (req, res) => {
   try {
     const {
@@ -36,12 +35,11 @@ router.post("/", async (req, res) => {
       cargo_nombre,
     } = req.body;
 
-    // Validaciones básicas
     if (!nombre || !apellido || !dni || !email || !fecha_ingreso) {
       return res.status(400).json({ error: "Faltan campos obligatorios" });
     }
 
-    // Resolver id_cargo si vino cargo_nombre (p. ej. "CHOFER")
+    // resolver id_cargo si vino cargo_nombre
     let cargoId = null;
     if (cargo_nombre) {
       const [cRows] = await pool.query(
@@ -52,7 +50,6 @@ router.post("/", async (req, res) => {
       if (!cargoId) return res.status(400).json({ error: "Cargo inválido" });
     }
 
-    // Insert
     const [result] = await pool.query(
       `INSERT INTO empleados (nombre, apellido, dni, email, telefono, fecha_ingreso, activo, id_cargo)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -68,7 +65,6 @@ router.post("/", async (req, res) => {
       ]
     );
 
-    // Devolver el creado
     const [rows] = await pool.query(
       `SELECT e.id, e.nombre, e.apellido, e.dni, e.email, e.telefono,
               e.fecha_ingreso, e.activo, c.nombre AS cargo
@@ -91,36 +87,99 @@ router.post("/", async (req, res) => {
   }
 });
 
-/**
- * POST /api/empleados/:id/qr  → genera o devuelve el QR UID
- * - Si ya tiene qr_uid y NO viene force=1 → NO regenera, devuelve el actual.
- * - Si no tiene qr_uid o viene force=1 → genera uno nuevo y lo guarda.
- * Respuesta: { ok:true, empleado:{ id, nombre, apellido, dni, email, qr_uid } }
- */
+/** PATCH /api/empleados/:id -> actualizar teléfono y/o cargo_nombre */
+router.patch("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { telefono, cargo_nombre } = req.body;
+
+    const sets = [];
+    const vals = [];
+
+    if (telefono !== undefined) {
+      sets.push("telefono = ?");
+      vals.push(telefono);
+    }
+
+    if (cargo_nombre !== undefined) {
+      let cargoId = null;
+      if (cargo_nombre) {
+        const [cRows] = await pool.query(
+          `SELECT id FROM cargos WHERE nombre = ? LIMIT 1`,
+          [cargo_nombre]
+        );
+        cargoId = cRows[0]?.id || null;
+        if (!cargoId) return res.status(400).json({ error: "Cargo inválido" });
+      }
+      sets.push("id_cargo = ?");
+      vals.push(cargoId);
+    }
+
+    if (!sets.length)
+      return res.status(400).json({ error: "Nada para actualizar" });
+
+    vals.push(id);
+    await pool.query(
+      `UPDATE empleados SET ${sets.join(", ")} WHERE id = ?`,
+      vals
+    );
+
+    const [rows] = await pool.query(
+      `SELECT e.id, e.nombre, e.apellido, e.dni, e.email, e.telefono,
+              e.fecha_ingreso, e.activo, c.nombre AS cargo
+         FROM empleados e
+    LEFT JOIN cargos c ON c.id = e.id_cargo
+        WHERE e.id = ?`,
+      [id]
+    );
+
+    if (!rows[0])
+      return res.status(404).json({ error: "Empleado no encontrado" });
+    res.json(rows[0]);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Error al actualizar empleado" });
+  }
+});
+
+/** DELETE /api/empleados/:id -> eliminar empleado */
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [r] = await pool.query(`DELETE FROM empleados WHERE id = ?`, [id]);
+    if (r.affectedRows === 0)
+      return res.status(404).json({ error: "Empleado no encontrado" });
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "No se pudo eliminar el empleado" });
+  }
+});
+
+/** POST /api/empleados/:id/qr -> genera o devuelve QR UID */
 router.post("/:id/qr", async (req, res) => {
   try {
     const { id } = req.params;
-    const force = req.query.force === "1"; // ?force=1 para forzar regeneración
+    const force = req.query.force === "1";
 
-    // Traemos datos del empleado, incluyendo qr_uid actual
     const [rows] = await pool.query(
-      "SELECT id, nombre, apellido, dni, email, qr_uid FROM empleados WHERE id=?",
+      "SELECT id, nombre, apellido, dni, email, qr_uid FROM empleados WHERE id = ?",
       [id]
     );
-    if (rows.length === 0) {
+    if (!rows.length)
       return res.status(404).json({ error: "Empleado no encontrado" });
-    }
 
     const emp = rows[0];
 
-    // Si NO hay qr_uid o forzás regeneración → generamos uno nuevo.
     if (!emp.qr_uid || force) {
       const nuevo = uuidv4();
-      await pool.query("UPDATE empleados SET qr_uid=? WHERE id=?", [nuevo, id]);
+      await pool.query("UPDATE empleados SET qr_uid = ? WHERE id = ?", [
+        nuevo,
+        id,
+      ]);
       emp.qr_uid = nuevo;
     }
-
-    return res.json({ ok: true, empleado: emp });
+    res.json({ ok: true, empleado: emp });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "No se pudo generar/obtener el QR" });

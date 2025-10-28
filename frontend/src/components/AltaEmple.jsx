@@ -1,10 +1,9 @@
-// frontend/src/components/AltaEmple.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "../services/api";
 import "../styles/AltaEmple.css";
-import QRCode from "react-qr-code"; // ⬅️ para renderizar el código QR
+import QRCode from "react-qr-code";
 
-// NUEVO: agregamos cargo_nombre para enviar al backend
+// ================= Formulario (Alta) =================
 const initial = {
   nombre: "",
   apellido: "",
@@ -13,28 +12,43 @@ const initial = {
   telefono: "",
   fecha_ingreso: "",
   activo: true,
-  cargo_nombre: "", // "CHOFER" / "OPERARIO" / "ADMIN" / "JEFE_PLANTA" (opcional)
+  cargo_nombre: "",
 };
 
 export default function Employees() {
+  // --- Estado general ---
   const [lista, setLista] = useState([]);
   const [form, setForm] = useState(initial);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
 
-  // ⬇️ Estado para el modal de QR
+  // --- Modal QR ---
   const [showQR, setShowQR] = useState(false);
-  const [empQR, setEmpQR] = useState(null); // { id, nombre, apellido, dni, email, qr_uid }
+  const [empQR, setEmpQR] = useState(null);
 
+  // --- Pestañas ---
+  const [vista, setVista] = useState("form");
+
+  // --- Buscador lista ---
+  const [buscar, setBuscar] = useState("");
+  const listaFiltrada = useMemo(() => {
+    const q = buscar.trim().toLowerCase();
+    if (!q) return lista;
+    return lista.filter((e) =>
+      `${e.nombre} ${e.apellido} ${e.dni}`.toLowerCase().includes(q)
+    );
+  }, [lista, buscar]);
+
+  // ================= Carga inicial =================
   const cargar = async () => {
     const { data } = await api.get("/api/empleados");
     setLista(data);
   };
-
   useEffect(() => {
     cargar();
   }, []);
 
+  // ================= Handlers formulario (Alta) =================
   const onChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
@@ -45,10 +59,11 @@ export default function Employees() {
     setLoading(true);
     setMsg("");
     try {
-      await api.post("/api/empleados", form); // envía cargo_nombre si hay
+      await api.post("/api/empleados", form);
       setForm(initial);
       await cargar();
       setMsg("Empleado creado correctamente.");
+      setVista("lista");
     } catch (err) {
       setMsg(err?.response?.data?.error || "Error al crear empleado");
     } finally {
@@ -56,21 +71,18 @@ export default function Employees() {
     }
   };
 
-  // ⬇️ Abre el modal con el QR SIN regenerar.
-  //    Si el empleado no tiene qr_uid, lo genera por primera vez (sin force).
+  // ================= QR =================
   const abrirQR = async (emp) => {
     try {
-      // pido el QR actual (si existe). Si no hay, el backend lo genera por 1ª vez.
       const { data } = await api.post(`/api/empleados/${emp.id}/qr`);
       setEmpQR(data?.empleado || null);
       setShowQR(true);
-      await cargar(); // refresco la tabla por si se generó por 1ª vez
+      await cargar();
     } catch (e) {
       alert(e?.response?.data?.error || "No se pudo obtener el QR");
     }
   };
 
-  // ⬇️ Regenera el QR (cambia el uid) sólo si confirmás
   const regenerarQR = async () => {
     if (!empQR) return;
     const ok = window.confirm(
@@ -86,191 +98,293 @@ export default function Employees() {
     }
   };
 
+  // ================== EDITAR (TELÉFONO + CARGO) ==================
+  const [editOpen, setEditOpen] = useState(false);
+  const [editEmp, setEditEmp] = useState(null);
+  const [editTel, setEditTel] = useState("");
+  const [editCargo, setEditCargo] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  // Abre modal con datos actuales
+  const abrirEditar = (emp) => {
+    setEditEmp(emp);
+    setEditTel(emp.telefono || "");
+    setEditCargo(emp.cargo || "");
+    setEditOpen(true);
+  };
+
+  // Guarda ambos campos (PATCH)
+  const guardarEdicion = async () => {
+    if (!editEmp) return;
+    try {
+      setSavingEdit(true);
+      await api.patch(`/api/empleados/${editEmp.id}`, {
+        telefono: editTel || null,
+        cargo_nombre: editCargo || null,
+      });
+      await cargar();
+      setEditOpen(false);
+    } catch (e) {
+      alert(e?.response?.data?.error || "No se pudo actualizar");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  // Quita solo el teléfono (PATCH con null)
+  const quitarTelefono = async () => {
+    if (!editEmp) return;
+    try {
+      setSavingEdit(true);
+      await api.patch(`/api/empleados/${editEmp.id}`, { telefono: null });
+      await cargar();
+      setEditTel("");
+      setEditOpen(false);
+    } catch (e) {
+      alert(e?.response?.data?.error || "No se pudo quitar el teléfono");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  // === NUEVO: Eliminar empleado (DELETE) ===
+  const eliminarEmpleado = async () => {
+    if (!editEmp) return;
+    const ok = window.confirm(
+      `Eliminar definitivamente a ${editEmp.apellido}, ${editEmp.nombre}?`
+    );
+    if (!ok) return;
+    try {
+      setSavingEdit(true);
+      await api.delete(`/api/empleados/${editEmp.id}`); // ⬅️ DELETE
+      await cargar();
+      setEditOpen(false);
+    } catch (e) {
+      alert(e?.response?.data?.error || "No se pudo eliminar");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
   return (
     <div className="emp-layout">
-      <div className="emp-card">
-        <h2>Alta de Empleado</h2>
-        <form className="emp-form" onSubmit={onSubmit}>
-          <div className="row">
-            <div className="col">
-              <label>Nombre *</label>
-              <input
-                name="nombre"
-                value={form.nombre}
-                onChange={onChange}
-                required
-              />
-            </div>
-            <div className="col">
-              <label>Apellido *</label>
-              <input
-                name="apellido"
-                value={form.apellido}
-                onChange={onChange}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="row">
-            <div className="col">
-              <label>DNI *</label>
-              <input name="dni" value={form.dni} onChange={onChange} required />
-            </div>
-            <div className="col">
-              <label>Email *</label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={onChange}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="row">
-            <div className="col">
-              <label>Teléfono</label>
-              <input
-                name="telefono"
-                value={form.telefono}
-                onChange={onChange}
-              />
-            </div>
-            <div className="col">
-              <label>Fecha de ingreso *</label>
-              <input
-                type="date"
-                name="fecha_ingreso"
-                value={form.fecha_ingreso}
-                onChange={onChange}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="row">
-            <div className="col">
-              <label>Cargo</label>
-              <select
-                name="cargo_nombre"
-                value={form.cargo_nombre}
-                onChange={onChange}
-              >
-                <option value="">(sin especificar)</option>
-                <option value="CHOFER">Chofer</option>
-                <option value="OPERARIO">Operario</option>
-                <option value="JEFE_PLANTA">Jefe de Planta</option>
-                <option value="ADMIN">Admin</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="row">
-            <label className="chk">
-              <input
-                type="checkbox"
-                name="activo"
-                checked={form.activo}
-                onChange={onChange}
-              />
-              <span>Activo</span>
-            </label>
-          </div>
-
-          {msg && <div className="emp-msg">{msg}</div>}
-
-          <button className="btn" disabled={loading}>
-            {loading ? "Guardando..." : "Guardar empleado"}
-          </button>
-        </form>
-      </div>
-
-      <div className="emp-card">
-        <h2>Empleados</h2>
-        <div className="emp-table">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>DNI</th>
-                <th>Email</th>
-                <th>Teléfono</th>
-                <th>Ingreso</th>
-                <th>Activo</th>
-                <th>Cargo</th>
-                <th>QR</th>
-                <th>Edicion</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lista.map((emp) => (
-                <tr key={emp.id}>
-                  <td>{emp.id}</td>
-                  <td>
-                    {emp.nombre} {emp.apellido}
-                  </td>
-                  <td>{emp.dni}</td>
-                  <td>{emp.email}</td>
-                  <td>{emp.telefono || "—"}</td>
-                  <td>{String(emp.fecha_ingreso).slice(0, 10)}</td>
-                  <td>{emp.activo ? "Sí" : "No"}</td>
-                  <td>{emp.cargo || "—"}</td>
-                  <td>
-                    <button
-                      className="btn btn-light"
-                      title={emp.qr_uid ? "Ver QR" : "Generar QR"}
-                      onClick={() => abrirQR(emp)}
-                    >
-                      QR
-                    </button>
-                  </td>
-                  <td>
-                    <button 
-                      className="btn btn-edit"
-                      >
-                      Editar
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {lista.length === 0 && (
-                <tr>
-                  <td colSpan="9" style={{ textAlign: "center" }}>
-                    Sin empleados
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {showQR && (
-        <div
-          className="modal-backdrop"
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,.35)",
-            display: "grid",
-            placeItems: "center",
-            zIndex: 50,
-          }}
-          onClick={() => setShowQR(false)}
+      {/* ========== PESTAÑAS ========== */}
+      <div className="emp-tabs">
+        <button
+          className={`emp-tab ${vista === "form" ? "active" : ""}`}
+          onClick={() => setVista("form")}
+          type="button"
         >
-          <div
-            className="modal"
-            style={{
-              background: "#fff",
-              padding: 16,
-              borderRadius: 12,
-              minWidth: 320,
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
+          Nuevo empleado
+        </button>
+        <button
+          className={`emp-tab ${vista === "lista" ? "active" : ""}`}
+          onClick={() => setVista("lista")}
+          type="button"
+        >
+          Lista de empleados
+        </button>
+      </div>
+
+      {/* ========== FORMULARIO (ALTA) ========== */}
+      {vista === "form" && (
+        <div className="emp-card">
+          <h2>Alta de Empleado</h2>
+          <form className="emp-form" onSubmit={onSubmit}>
+            <div className="row">
+              <div className="col">
+                <label>
+                  Nombre <span className="req">*</span>
+                </label>
+                <input
+                  name="nombre"
+                  placeholder="Ej.: Juan"
+                  value={form.nombre}
+                  onChange={onChange}
+                  required
+                />
+              </div>
+              <div className="col">
+                <label>
+                  Apellido <span className="req">*</span>
+                </label>
+                <input
+                  name="apellido"
+                  placeholder="Ej.: Pérez"
+                  value={form.apellido}
+                  onChange={onChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="row">
+              <div className="col">
+                <label>
+                  DNI <span className="req">*</span>
+                </label>
+                <input
+                  name="dni"
+                  placeholder="Solo números"
+                  value={form.dni}
+                  onChange={onChange}
+                  required
+                />
+              </div>
+              <div className="col">
+                <label>
+                  Email <span className="req">*</span>
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="correo@empresa.com"
+                  value={form.email}
+                  onChange={onChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="row">
+              <div className="col">
+                <label>Teléfono</label>
+                <input
+                  name="telefono"
+                  placeholder="Ej.: 381-5555555"
+                  value={form.telefono}
+                  onChange={onChange}
+                />
+              </div>
+              <div className="col">
+                <label>
+                  Fecha de ingreso <span className="req">*</span>
+                </label>
+                <input
+                  type="date"
+                  name="fecha_ingreso"
+                  value={form.fecha_ingreso}
+                  onChange={onChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="row">
+              <div className="col">
+                <label>Cargo</label>
+                <select
+                  name="cargo_nombre"
+                  value={form.cargo_nombre}
+                  onChange={onChange}
+                >
+                  <option value="">(sin especificar)</option>
+                  <option value="CHOFER">Chofer</option>
+                  <option value="OPERARIO">Operario</option>
+                  <option value="JEFE_PLANTA">Jefe de Planta</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+              </div>
+            </div>
+
+            {msg && <div className="emp-msg">{msg}</div>}
+
+            <div className="form-actions">
+              <button className="btn" disabled={loading}>
+                {loading ? "Guardando..." : "Guardar empleado"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* ========== LISTA (EMPLEADOS) ========== */}
+      {vista === "lista" && (
+        <div className="emp-card">
+          <div className="emp-list-head">
+            <h2 style={{ margin: 0 }}>Empleados</h2>
+            <div className="emp-list-tools">
+              <input
+                className="emp-search"
+                type="text"
+                placeholder="Buscar por nombre o DNI…"
+                value={buscar}
+                onChange={(e) => setBuscar(e.target.value)}
+              />
+              <button
+                className="btn btn-light"
+                type="button"
+                onClick={() => setVista("form")}
+                title="Crear nuevo empleado"
+              >
+                + Nuevo
+              </button>
+            </div>
+          </div>
+
+          <div className="emp-table">
+            <table>
+              <thead>
+                <tr>
+                  {/*<th>ID</th>*/}
+                  <th>Apellido y Nombre</th>
+                  <th>DNI</th>
+                  <th>Email</th>
+                  <th>Teléfono</th>
+                  <th>Ingreso</th>
+                  <th>Cargo</th>
+                  <th>QR</th>
+                  <th>Edición</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listaFiltrada.map((emp) => (
+                  <tr key={emp.id}>
+                    {/*<td>{emp.id}</td>*/}
+                    <td>
+                      {emp.apellido}, {emp.nombre}
+                    </td>
+                    <td>{emp.dni}</td>
+                    <td>{emp.email}</td>
+                    <td>{emp.telefono || "—"}</td>
+                    <td>{String(emp.fecha_ingreso).slice(0, 10)}</td>
+                    <td>{emp.cargo || "—"}</td>
+                    <td>
+                      <button
+                        className="btn btn-light"
+                        title={emp.qr_uid ? "Ver QR" : "Generar QR"}
+                        onClick={() => abrirQR(emp)}
+                      >
+                        QR
+                      </button>
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-edit"
+                        onClick={() => abrirEditar(emp)}
+                      >
+                        Editar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {listaFiltrada.length === 0 && (
+                  <tr>
+                    <td colSpan="9" style={{ textAlign: "center" }}>
+                      Sin empleados
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ========== MODAL QR ========== */}
+      {showQR && (
+        <div className="modal-backdrop" onClick={() => setShowQR(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h3>Credencial QR</h3>
             {empQR ? (
               <>
@@ -299,14 +413,7 @@ export default function Employees() {
             ) : (
               <p>No se pudo cargar el QR.</p>
             )}
-            <div
-              style={{
-                marginTop: 12,
-                display: "flex",
-                gap: 8,
-                justifyContent: "flex-end",
-              }}
-            >
+            <div className="modal-actions">
               <button
                 className="btn btn-light"
                 onClick={() => setShowQR(false)}
@@ -321,6 +428,83 @@ export default function Employees() {
               <button className="btn" onClick={() => window.print()}>
                 Imprimir
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========== MODAL EDITAR (TELÉFONO + CARGO + ELIMINAR) ========== */}
+      {editOpen && (
+        <div className="modal-backdrop" onClick={() => setEditOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Editar teléfono y cargo</h3>
+            <p className="modal-id">
+              <strong>
+                {editEmp?.apellido}, {editEmp?.nombre}
+              </strong>{" "}
+              — DNI: {editEmp?.dni}
+            </p>
+
+            <div className="modal-fields">
+              <label>Teléfono</label>
+              <input
+                className="modal-input"
+                placeholder="Ej.: 381-5555555"
+                value={editTel}
+                onChange={(e) => setEditTel(e.target.value)}
+              />
+
+              <label style={{ marginTop: 8 }}>Cargo</label>
+              <select
+                className="modal-select"
+                value={editCargo}
+                onChange={(e) => setEditCargo(e.target.value)}
+              >
+                <option value="">(sin especificar)</option>
+                <option value="CHOFER">Chofer</option>
+                <option value="OPERARIO">Operario</option>
+                <option value="JEFE_PLANTA">Jefe de Planta</option>
+                <option value="ADMIN">Admin</option>
+              </select>
+            </div>
+
+            <div
+              className="modal-actions"
+              style={{ justifyContent: "space-between" }}
+            >
+              {/* Izquierda: eliminar empleado */}
+              <button
+                className="btn btn-danger"
+                onClick={eliminarEmpleado}
+                disabled={savingEdit}
+              >
+                Eliminar empleado
+              </button>
+
+              {/* Derecha: acciones de edición */}
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  className="btn btn-light"
+                  onClick={() => setEditOpen(false)}
+                  disabled={savingEdit}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="btn"
+                  onClick={quitarTelefono}
+                  disabled={savingEdit}
+                >
+                  Quitar teléfono
+                </button>
+                <button
+                  className="btn"
+                  onClick={guardarEdicion}
+                  disabled={savingEdit}
+                >
+                  {savingEdit ? "Guardando..." : "Guardar"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
