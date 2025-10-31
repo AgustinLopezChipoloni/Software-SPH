@@ -9,6 +9,8 @@ import asistenciasRoutes from "./routes/asistencias.routes.js";
 import asignacionesRoutes from "./routes/asignaciones.routes.js";
 import materialesRoutes from "./routes/materiales.routes.js";
 import clientesRoutes from "./routes/clientes.routes.js";
+import agendaclientesRoutes from "./routes/agendaclientes.routes.js";
+import pedidosRoutes from "./routes/pedidos.routes.js";
 dotenv.config();
 const app = express();
 app.use(cors());
@@ -33,6 +35,8 @@ app.use("/api/asistencias", asistenciasRoutes);
 app.use("/api/asignaciones", asignacionesRoutes);
 app.use("/api/materiales", materialesRoutes);
 app.use("/api/Clientes", clientesRoutes);
+app.use("/api/agendaclientes", agendaclientesRoutes);
+app.use("/api/pedidos", pedidosRoutes);
 /*
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));

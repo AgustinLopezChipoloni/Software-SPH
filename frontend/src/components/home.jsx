@@ -12,15 +12,18 @@ import {
   BiChevronLeft,
   BiMenu,
 } from "react-icons/bi";
-import { api } from "../services/api"; // ⬅️ NUEVO: para pedir camiones
+import { api } from "../services/api";
 import AltaEmple from "../components/AltaEmple";
 import AltaCamion from "../components/AltaCamion";
 import AsistenciasQR from "../components/AsistenciasQR";
 import StockMateriales from "../components/StockMateriales";
-import Clientes from "../components/clientes";
+import Clientes from "../components/Clientes";
+import AgendaClientes from "../components/AgendaClientes";
 import AsignacionesCamiones from "../components/AsignacionesCamiones";
+import AgendarPedido from "../components/AgendarPedido";
+import Pedidos from "../components/Pedidos";
 
-/** Botón del sidebar (reutilizable) */
+
 function SidebarItem({ icon: Icon, label, active, onClick }) {
   return (
     <button
@@ -34,13 +37,13 @@ function SidebarItem({ icon: Icon, label, active, onClick }) {
   );
 }
 
-/** Card del dashboard (ahora soporta onClick) */
+/** Card del dashboard */
 function StatCard({ icon: Icon, title, value, hint, onClick }) {
   const clickable = typeof onClick === "function";
   return (
     <div
-      className={`stat-card ${clickable ? "is-clickable" : ""}`} // ⬅️ cursor pointer
-      onClick={onClick} // ⬅️ navega si hay handler
+      className={`stat-card ${clickable ? "is-clickable" : ""}`}
+      onClick={onClick}
       role={clickable ? "button" : undefined}
       tabIndex={clickable ? 0 : undefined}
     >
@@ -59,18 +62,14 @@ function StatCard({ icon: Icon, title, value, hint, onClick }) {
 export default memo(function Home({ user, onLogout }) {
   const [section, setSection] = useState("dashboard");
   const [logisticaTab, setLogisticaTab] = useState("asignaciones");
+  const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
+  const [clientesTab, setClientesTab] = useState("agenda");
 
-  // Sidebar abierto/cerrado
   const [sidebarAbierto, setSidebarAbierto] = useState(true);
-
-  // Menú de usuario
   const [userOpen, setUserOpen] = useState(false);
   const userRef = useRef(null);
-
-  // ⬅️ NUEVO: cantidad de camiones activos
   const [camionesActivos, setCamionesActivos] = useState(null);
 
-  // Cierra el menú del usuario si hace click afuera
   useEffect(() => {
     function handleClickOutside(e) {
       if (userRef.current && !userRef.current.contains(e.target)) {
@@ -95,21 +94,19 @@ export default memo(function Home({ user, onLogout }) {
   };
   const currentTitle = titleMap[section] || "Panel";
 
-  // ====== NUEVO: cargo cantidad de camiones activos ======
   useEffect(() => {
     async function cargarActivos() {
       try {
         const { data } = await api.get("/api/camiones");
         const activos = data.filter((c) => Number(c.activo) === 1).length;
         setCamionesActivos(activos);
-      } catch (e) {
-        setCamionesActivos("—"); // fallback
+      } catch {
+        setCamionesActivos("—");
       }
     }
     cargarActivos();
-  }, []); // con montar alcanza para el dashboard
+  }, []);
 
-  // Handler para ir directo a Logística → Camiones
   const irALogisticaCamiones = () => {
     setSection("logistica");
     setLogisticaTab("camiones");
@@ -239,9 +236,11 @@ export default memo(function Home({ user, onLogout }) {
           </div>
         </header>
 
-        {/* Contenido por sección */}
+        {/* ===== Secciones ===== */}
         {section === "empleados" ? (
           <AltaEmple />
+        ) : section === "pedidos" ? (
+          <Pedidos />
         ) : section === "logistica" ? (
           <section
             className="welcome-card"
@@ -262,7 +261,6 @@ export default memo(function Home({ user, onLogout }) {
                 }`}
                 onClick={() => setLogisticaTab("camiones")}
                 type="button"
-                title="Ver/crear camiones"
               >
                 Camiones
               </button>
@@ -272,12 +270,10 @@ export default memo(function Home({ user, onLogout }) {
                 }`}
                 onClick={() => setLogisticaTab("asignaciones")}
                 type="button"
-                title="Asignar camiones a choferes"
               >
                 Asignaciones
               </button>
             </div>
-
             <div style={{ display: "grid", gap: 20 }}>
               {logisticaTab === "camiones" ? (
                 <AltaCamion />
@@ -291,7 +287,54 @@ export default memo(function Home({ user, onLogout }) {
         ) : section === "stock" ? (
           <StockMateriales />
         ) : section === "clientes" ? (
-          <Clientes />
+  <section
+    className="welcome-card"
+    style={{ padding: 0, background: "transparent" }}
+  >
+    <div
+      style={{
+        display: "flex",
+        gap: 8,
+        padding: "10px 12px",
+        borderBottom: "1px solid var(--border, #e5e7eb)",
+        marginBottom: 16,
+      }}
+    >
+      <button
+        className={`btn ${clientesTab === "agenda" ? "btn-primary" : ""}`}
+        onClick={() => {
+          setClientesTab("agenda");
+          setClienteSeleccionado(null); // 👈 volvemos a la lista
+        }}
+        type="button"
+      >
+        Agenda
+      </button>
+      <button
+        className={`btn ${clientesTab === "clientes" ? "btn-primary" : ""}`}
+        onClick={() => {
+          setClientesTab("clientes");
+          setClienteSeleccionado(null);
+        }}
+        type="button"
+      >
+        Clientes
+      </button>
+    </div>
+
+    <div style={{ display: "grid", gap: 20 }}>
+      {clientesTab === "agenda" && !clienteSeleccionado ? (
+        <AgendaClientes onSeleccionar={setClienteSeleccionado} />  // 👈 pasamos función
+      ) : clienteSeleccionado ? (
+        <AgendarPedido
+          cliente={clienteSeleccionado}
+          onVolver={() => setClienteSeleccionado(null)}  // 👈 para volver
+        />
+      ) : (
+        <Clientes />
+      )}
+    </div>
+  </section>
         ) : section === "dashboard" ? (
           <>
             <section className="stats-grid">
@@ -310,19 +353,23 @@ export default memo(function Home({ user, onLogout }) {
               <StatCard
                 icon={BiTruck}
                 title="Camiones activos"
-                value={camionesActivos ?? "—"} // ⬅️ muestra cantidad
+                value={camionesActivos ?? "—"}
                 hint="Ir a logística"
-                onClick={irALogisticaCamiones} // ⬅️ navega al módulo
+                onClick={irALogisticaCamiones}
+              />
+              <StatCard
+                icon={BiGroup}
+                title="Clientes activos"
+                value="—"
+                hint="Conectar a clientes"
               />
             </section>
-
             <section className="welcome-card">
               <h2>Bienvenido/a, {user?.username}</h2>
               <p>
-                Este es tu panel principal. Desde la barra lateral podés navegar
-                a <strong>Empleados</strong>, <strong>Clientes</strong>,{" "}
-                <strong>Pedidos</strong> y más. Vamos a ir habilitando cada
-                módulo a medida que lo implementemos.
+                Desde el panel lateral podés navegar a{" "}
+                <strong>Empleados</strong>, <strong>Clientes</strong>,{" "}
+                <strong>Pedidos</strong> y más.
               </p>
             </section>
           </>

@@ -1,0 +1,59 @@
+.agenda-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+}
+
+.agenda-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.agenda-buscador {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  width: 250px;
+}
+
+.lista-clientes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 16px;
+}
+
+.tarjeta-cliente {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 15px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tarjeta-cliente:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+}
+
+.tarjeta-cliente h3 {
+  margin-bottom: 8px;
+  color: #1f2937;
+}
+
+.tarjeta-cliente p {
+  font-size: 0.9rem;
+  color: #374151;
+  margin: 2px 0;
+}
+
+.agenda-msg {
+  color: #375aa0;
+}
+
+.agenda-error {
+  color: #dc2626;
+}

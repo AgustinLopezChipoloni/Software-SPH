@@ -4,7 +4,7 @@ import { pool } from "../db.js";
 
 const router = express.Router();
 
-// ✅ Obtener todos los materiales
+
 router.get("/", async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT * FROM materiales");
@@ -15,7 +15,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ Actualizar cantidad (stock)
+
 router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;

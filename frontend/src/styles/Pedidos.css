@@ -1,0 +1,79 @@
+.pedidos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+}
+
+.pedidos-subtitle {
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.lista-pedidos {
+  display: grid;
+  gap: 12px;
+}
+
+.tarjeta-pedido {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 15px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.tarjeta-pedido:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+}
+
+.tarjeta-pedido.expandido {
+  background: #f9fafb;
+}
+
+.pedido-header h3 {
+  margin-bottom: 5px;
+  color: #1f2937;
+}
+
+.pedido-header p {
+  margin: 2px 0;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.pedido-detalle {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.pedido-detalle p {
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.btn-entregado {
+  background-color: #22c55e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-entregado:hover {
+  background-color: #16a34a;
+}
+
+.pedidos-msg {
+  color: #375aa0;
+}
+
+.pedidos-error {
+  color: #dc2626;
+}

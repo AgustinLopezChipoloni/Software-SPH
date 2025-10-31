@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 
 const router = Router();
 
-/** GET /api/empleados -> lista (incluye cargo) */
+
 router.get("/", async (_req, res) => {
   try {
     const [rows] = await pool.query(
@@ -21,7 +21,7 @@ router.get("/", async (_req, res) => {
   }
 });
 
-/** POST /api/empleados -> alta (acepta cargo_nombre opcional) */
+
 router.post("/", async (req, res) => {
   try {
     const {
@@ -39,7 +39,7 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Faltan campos obligatorios" });
     }
 
-    // resolver id_cargo si vino cargo_nombre
+    
     let cargoId = null;
     if (cargo_nombre) {
       const [cRows] = await pool.query(
