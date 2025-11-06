@@ -34,13 +34,15 @@ export default function AsistenciasQR() {
 
   useEffect(() => {
     const idDiv = "qr-reader";
-    const escaner = new Html5QrcodeScanner(idDiv, {
+
+    // Opciones del widget (las reusamos para re-crear el escáner)
+    const opciones = {
       fps: 10,
       qrbox: { width: 250, height: 250 },
       rememberLastUsedCamera: true,
       showTorchButtonIfSupported: true, // linterna (nativo del widget)
-      showZoomSliderIfSupported: true, // zoom (nativo del widget)
-    });
+      showZoomSliderIfSupported: true,  // zoom (nativo del widget)
+    };
 
     // Éxito al leer QR
     const alLeerQR = async (textoLeido) => {
@@ -57,12 +59,22 @@ export default function AsistenciasQR() {
         setMensaje(
           e?.response?.data?.error || "No se pudo registrar la asistencia"
         );
+      } finally {
+        // 🔁 Resetea SOLO el cuadro del lector para que se “salga” la imagen/archivo
+        try {
+          await escanerRef.current?.clear();
+        } catch (_) {}
+        const nuevo = new Html5QrcodeScanner(idDiv, opciones);
+        nuevo.render(alLeerQR, alErrorQR);
+        escanerRef.current = nuevo;
       }
     };
 
     // Error continuo de lectura (se ignora)
     const alErrorQR = () => {};
 
+    // Render inicial
+    const escaner = new Html5QrcodeScanner(idDiv, opciones);
     escaner.render(alLeerQR, alErrorQR);
     escanerRef.current = escaner;
 
@@ -72,7 +84,7 @@ export default function AsistenciasQR() {
     return () => escaner.clear().catch(() => {});
   }, []); // eslint-disable-line
 
-  // Leer QR desde imagen
+  // Leer QR desde imagen (solo si usás tu input oculto; el widget interno también funciona)
   const leerDesdeImagen = async (e) => {
     const archivo = e.target.files?.[0];
     if (!archivo) return;

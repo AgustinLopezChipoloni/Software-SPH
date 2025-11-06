@@ -8,7 +8,6 @@ export default function Pedidos() {
   const [error, setError] = useState("");
   const [pedidoExpandido, setPedidoExpandido] = useState(null);
 
-  
   const cargarPedidos = async () => {
     try {
       const res = await api.get("/api/pedidos/activos");
@@ -32,7 +31,6 @@ export default function Pedidos() {
   const marcarEntregado = async (id) => {
     try {
       await api.put(`/api/pedidos/${id}/estado`, { activo: 0 });
-      
       setPedidos((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
       console.error(err);
@@ -56,11 +54,10 @@ export default function Pedidos() {
           {pedidos.map((p) => (
             <div
               key={p.id}
-              className={`tarjeta-pedido ${
-                pedidoExpandido === p.id ? "expandido" : ""
-              }`}
+              className={`tarjeta-pedido ${pedidoExpandido === p.id ? "expandido" : ""}`}
               onClick={() => toggleExpandir(p.id)}
             >
+              {/* Columna izquierda */}
               <div className="pedido-header">
                 <h3>
                   {p.nombre_cliente} {p.apellido_cliente}
@@ -71,14 +68,19 @@ export default function Pedidos() {
                 <p>
                   <strong>Volumen:</strong> {p.m3} m³
                 </p>
-              </div>
 
-              {pedidoExpandido === p.id && (
-                <div className="pedido-detalle">
-                  <p>
+                {/* 👇 Observación AHORA va debajo de Volumen */}
+                {pedidoExpandido === p.id && (
+                  <p className="pedido-observacion">
                     <strong>Observación:</strong>{" "}
                     {p.observacion || "Sin observaciones"}
                   </p>
+                )}
+              </div>
+
+              {/* Columna derecha: solo acciones */}
+              {pedidoExpandido === p.id && (
+                <div className="pedido-detalle">
                   <button
                     className="btn-entregado"
                     onClick={(e) => {
