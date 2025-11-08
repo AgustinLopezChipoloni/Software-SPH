@@ -1,237 +1,278 @@
-/* =============== LAYOUT GENERAL =============== */
+/* =====================================================
+   EMPLEADOS - Tema Oscuro Industrial
+   Unificado con estilo SIGPH
+===================================================== */
+
+/* Layout */
 .emp-layout {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
   padding: 16px;
 }
+
+/* Card */
 .emp-card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 14px;
-  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.08),
-    0 2px 6px rgba(16, 24, 40, 0.06);
-  padding: 16px;
-}
-.emp-card h2 {
-  margin: 0 0 10px 0;
-  color: #0f172a;
+  padding: 18px;
+  box-shadow: var(--shadow-1);
 }
 
-/* =============== FORMULARIO (ALTA) =============== */
+.emp-card h2 {
+  margin: 0 0 10px 0;
+  color: var(--ink);
+}
+
+/* ===================== TABS ===================== */
+
+.emp-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.emp-tab {
+  background: #1a1a1a;
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: var(--ink-muted);
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.emp-tab:hover {
+  background: #222;
+}
+
+.emp-tab.active {
+  background: var(--primary);
+  border-color: var(--primary-light);
+  color: #fff;
+}
+
+/* ===================== FORMULARIO ===================== */
+
 .emp-form .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
   margin-bottom: 12px;
 }
+
 .emp-form .col {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
+
 .emp-form label {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  color: #334155;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink-muted);
 }
-.emp-form .req {
-  color: #e11d48;
+
+.req {
+  color: var(--primary-light);
 }
-.emp-form input[type="text"],
-.emp-form input[type="email"],
-.emp-form input[type="date"],
+
+/* Inputs */
+
+.emp-form input,
 .emp-form select {
-  height: 42px;
-  border: 1px solid #e5e7eb;
+  background: #222;
+  color: var(--ink);
+  border: 1px solid var(--border);
   border-radius: 10px;
+  height: 42px;
   padding: 0 12px;
-  background: #fff;
-  transition: border-color 0.12s, box-shadow 0.12s;
 }
-.emp-form input::placeholder {
-  color: #94a3b8;
-}
-.emp-form input:hover,
-.emp-form select:hover {
-  border-color: #d1d5db;
-}
+
 .emp-form input:focus,
 .emp-form select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 6px rgba(215, 38, 56, 0.5);
   outline: none;
-  border-color: #1e88e5;
-  box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.15);
 }
-.chk {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+
+.emp-msg {
+  margin: 10px 0;
+  color: var(--primary-light);
 }
-.chk input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: #1e88e5;
-}
+
+/* Acción guardar */
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
-/* Botones */
-.btn {
-  height: 42px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 10px;
-  background: #1e88e5;
-  color: #fff;
-  font-weight: 700;
-  cursor: pointer;
-}
-.btn-light {
-  background: #f1f5f9;
-  color: #0f172a;
-  border: 1px solid #e5e7eb;
-}
-.btn-edit {
-  background: #10b981;
-  color: #fff;
-}
-.btn-danger {
-  background: #ef4444;
-  color: #fff;
-}
+/* ===================== LISTA ===================== */
 
-/* Mensaje */
-.emp-msg {
-  margin: 6px 0 10px 0;
-  color: #0f766e;
-}
-
-/* =============== LISTA (EMPLEADOS) =============== */
-.emp-table table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.emp-table th,
-.emp-table td {
-  border: 1px solid #e5e7eb;
-  padding: 8px;
-  font-size: 14px;
-}
-.emp-table th {
-  background: #f8fafc;
-  text-align: left;
-}
 .emp-list-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
+
 .emp-list-tools {
   display: flex;
   align-items: center;
   gap: 8px;
 }
+
 .emp-search {
-  height: 38px;
-  border: 1px solid #e5e7eb;
+  height: 40px;
+  padding: 0 12px;
   border-radius: 10px;
-  padding: 0 10px;
+  border: 1px solid var(--border);
+  background: #222;
+  color: var(--ink);
   min-width: 240px;
 }
 
-/* =============== TABS (COMÚN) =============== */
-.emp-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.emp-tab {
-  border: 1px solid var(--border, #e5e7eb);
-  background: #fff;
-  color: #111827;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-}
-.emp-tab.active {
-  background: rgba(30, 136, 229, 0.08);
-  border-color: rgba(30, 136, 229, 0.25);
-  color: #1e88e5;
+.emp-search:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 6px rgba(215, 38, 56, 0.5);
+  outline: none;
 }
 
-/* =============== MODALES (comunes) =============== */
+/* Tabla */
+
+.emp-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.emp-table th,
+.emp-table td {
+  padding: 12px;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #2a2a2a;
+  color: var(--ink);
+}
+
+.emp-table th {
+  color: var(--ink-muted);
+  background: #1d1d1d;
+  font-weight: 600;
+}
+
+/* ===================== BOTONES ===================== */
+
+.btn {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  transition: 0.2s;
+}
+
+.btn:hover {
+  background: var(--primary-light);
+}
+
+.btn-light {
+  background: #333;
+  color: var(--ink);
+  border: 1px solid var(--border);
+}
+
+.btn-light:hover {
+  background: #3d3d3d;
+}
+
+.btn-edit {
+  background: #1b7f63;
+  color: #fff;
+}
+
+.btn-edit:hover {
+  background: #26a17c;
+}
+
+.btn-danger {
+  background: #960000 !important;
+  color: #fff !important;
+  border: 1px solid #b30000 !important;
+}
+
+.btn-danger:hover {
+  background: #b30000 !important;
+}
+
+/* ===================== MODALES ===================== */
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.55);
   display: grid;
   place-items: center;
   z-index: 50;
 }
+
 .modal {
-  background: #fff;
-  padding: 16px;
-  border-radius: 12px;
+  background: #1c1c1c;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
   min-width: 320px;
   max-width: 480px;
+  color: var(--ink);
+  box-shadow: var(--shadow-1);
 }
-.modal-actions {
-  margin-top: 12px;
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-}
-.modal-input {
-  width: 100%;
-  height: 40px;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 0 10px;
-}
-.modal-select {
-  width: 100%;
-  height: 40px;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 0 10px;
-  background: #fff;
-}
+
 .modal-id {
-  margin: 6px 0 10px;
-  color: #334155;
+  margin-bottom: 10px;
+  color: var(--ink-muted);
 }
+
 .modal-fields {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
-.modal-id {
-  color: black;
-}
-.btn.btn-danger {
-  background: #ef4444 !important;
-  border: 1px solid #dc2626 !important;
-  padding-bottom: 5px;
-  padding-top: 5px;
-}
-.btn.btn-danger:hover {
-  background: #dc2626 !important;
-  border-color: #b91c1c !important;
+.modal-input,
+.modal-select {
+  background: #222;
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  height: 40px;
+  padding: 0 10px;
 }
 
-/* =============== RESPONSIVE =============== */
+.modal-input:focus,
+.modal-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 6px rgba(215, 38, 56, 0.4);
+}
+
+.modal-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* ===================== RESPONSIVE ===================== */
+
 @media (max-width: 720px) {
   .emp-form .row {
     grid-template-columns: 1fr;
   }
+
   .emp-search {
     min-width: 160px;
   }

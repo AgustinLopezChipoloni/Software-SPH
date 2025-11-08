@@ -67,7 +67,7 @@ export default function StockMateriales() {
                   className="btn-agregar-stock"
                   onClick={() => handleAgregarClick(m.id)}
                 >
-                  ➕ Agregar Stock
+                   Agregar Stock
                 </button>
               </div>
 

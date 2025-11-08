@@ -1,131 +1,281 @@
-/* ===== Visual para Logística: Camiones ===== */
+/* ============================================
+   LOGÍSTICA - CAMIONES (Dark Industrial Theme)
+============================================ */
+
+/* Layout general */
+.emp-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px;
+  color: var(--ink);
+}
+
+/* === Tarjetas === */
+.emp-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: var(--shadow-1);
+}
 
 .camion-form-card,
 .camion-table-card {
-  /* mismas bases que emp-card, solo ajustamos spacing */
-  padding: 18px;
+  padding: 22px;
 }
 
+/* === Títulos === */
 .card-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
+}
+
+.card-head h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--ink);
 }
 
 .card-subtitle {
-  color: #6b7280; /* gris medio */
-  font-size: 0.92rem;
+  color: var(--ink-muted);
   margin-top: 4px;
+  font-size: 0.95rem;
 }
 
-.right-tools {
+/* === Inputs === */
+.emp-form .row {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  gap: 16px;
+  margin-bottom: 14px;
 }
 
-.search-input {
-  padding: 8px 10px;
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 8px;
-  outline: none;
-  font-size: 0.95rem;
-  width: 260px;
-}
-.search-input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+.emp-form .col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Tabla compacta: más prolija */
-.table-compact {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.95rem;
-}
-.table-compact thead th {
-  text-align: left;
-  color: #6b7280;
+.emp-form label {
+  margin-bottom: 6px;
+  color: var(--ink-muted);
   font-weight: 600;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border, #e5e7eb);
-}
-.table-compact tbody td {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border, #f1f5f9);
-}
-.table-compact tbody tr:hover {
-  background: #f9fafb;
 }
 
-/* monospace para patentes p/que queden prolijas */
-.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
-  letter-spacing: 0.2px;
+.emp-form input {
+  background: #2a2a2a;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  color: var(--ink);
 }
 
-/* Badge de estado */
-.badge {
-  display: inline-block;
-  font-size: 0.82rem;
-  padding: 3px 8px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-}
-.badge.ok {
-  background: #e6fbe6;
-  color: #0f5132;
-  border-color: #badbcc;
-}
-.badge.off {
-  background: #fff3cd;
-  color: #664d03;
-  border-color: #ffe69c;
+.emp-form input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 6px rgba(215, 38, 56, 0.35);
 }
 
-/* Contenedor con sombra al scrollear (suave) */
-.scroll-shadow {
-  max-height: 420px; /* ajustable */
-  overflow: auto;
-  position: relative;
-}
-
-/* Botones */
+/* === Botones === */
 .actions {
   display: flex;
   gap: 10px;
-  margin-top: 12px;
+  margin-top: 16px;
 }
+
 .btn {
-  background: #2563eb;
-  color: white;
-  border: none;
-  padding: 9px 14px;
-  border-radius: 8px;
+  background: var(--primary);
+  color: #fff;
+  border: 1px solid #7c151d;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: 600;
+  transition: 0.2s ease;
 }
+
 .btn:hover {
-  background: #1e4ddb;
+  background: var(--primary-light);
 }
+
 .btn:disabled {
   opacity: 0.6;
   cursor: default;
 }
+
 .btn-light {
-  background: #f3f4f6;
-  color: #111827;
-}
-.btn-light:hover {
-  background: #e5e7eb;
+  background: #333;
+  color: var(--ink);
+  border: 1px solid var(--border);
 }
 
-/* Texto auxiliar */
+.btn-light:hover {
+  background: #3d3d3d;
+}
+
+.btn-danger {
+  background: #8a1f1f;
+  border-color: #5c0f0f;
+}
+
+.btn-danger:hover {
+  background: #b52424;
+}
+
+/* === Alertas === */
+.emp-msg {
+  margin-top: 6px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #232323;
+  border: 1px solid var(--border);
+  color: var(--primary-light);
+  font-size: 0.95rem;
+}
+
+/* ========================================
+        TABLA DE CAMIONES
+======================================== */
+.emp-table {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.table-compact {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-compact thead th {
+  padding: 12px;
+  background: #1d1d1d;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink-muted);
+  font-weight: 700;
+}
+
+.table-compact tbody td {
+  padding: 12px;
+  border-bottom: 1px solid #2a2a2a;
+  color: var(--ink);
+}
+
+.table-compact tbody tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* monospace para patentes */
+.mono {
+  font-family: "Courier New", monospace;
+}
+
+/* Badge de estado */
+.badge {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  display: inline-block;
+  border: 1px solid transparent;
+  font-weight: 700;
+}
+
+.badge.ok {
+  background: rgba(0, 150, 60, 0.15);
+  color: #5ef18f;
+  border-color: rgba(0, 150, 60, 0.3);
+}
+
+.badge.off {
+  background: rgba(200, 150, 0, 0.15);
+  color: #ffdf7e;
+  border-color: rgba(200, 150, 0, 0.3);
+}
+
+/* scroll container */
+.scroll-shadow {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+/* texto inferior */
 .hint {
-  color: #6b7280;
+  margin-top: 10px;
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+}
+
+/* ========================================
+           BUSCADOR
+======================================== */
+.search-input {
+  background: #2a2a2a;
+  color: var(--ink);
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* ========================================
+               MODAL
+======================================== */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 40;
+  backdrop-filter: blur(3px);
+}
+
+.modal {
+  background: #1f1f1f;
+  border: 1px solid var(--border);
+  padding: 22px;
+  border-radius: 14px;
+  width: 420px;
+  max-width: 90%;
+  box-shadow: var(--shadow-1);
+}
+
+.modal h3 {
+  margin-top: 0;
+  color: var(--ink);
+}
+
+.modal-id {
+  color: var(--ink-muted);
   font-size: 0.9rem;
-  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+/* Checkbox */
+.chk {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+}
+
+.chk input {
+  width: 18px;
+  height: 18px;
 }

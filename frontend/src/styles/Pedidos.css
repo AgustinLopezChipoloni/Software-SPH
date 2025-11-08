@@ -1,111 +1,124 @@
-/* === Grilla: 2 por fila en desktop, 1 en mobile === */
-.lista-pedidos{
-  display: grid;
-  grid-template-columns: 1fr;          /* mobile: 1 por fila */
-  gap: 16px;                            /* separación pareja */
+/* ========================================
+   PEDIDOS - DARK INDUSTRIAL THEME
+========================================= */
+
+.pedidos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px;
+  background: transparent;
+  color: var(--ink);
 }
 
-@media (min-width: 768px){
-  .lista-pedidos{
-    grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 por fila */
+.pedidos-container h2 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.pedidos-subtitle {
+  color: var(--ink-muted);
+  margin-top: -4px;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+/* ================== LISTA ================== */
+.lista-pedidos {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
+@media (min-width: 768px) {
+  .lista-pedidos {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* === Card en disposición horizontal === */
-.tarjeta-pedido{
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  padding: 15px;
-  transition: all .2s ease;
-  cursor: pointer;
-  overflow: hidden;
-
-  /* clave para horizontal */
+/* ================== TARJETAS ================== */
+.tarjeta-pedido {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  height: 100%;               /* que llene la celda del grid */
+  gap: 18px;
+  cursor: pointer;
+  transition: 0.25s ease;
+  box-shadow: var(--shadow-1);
 }
 
-.tarjeta-pedido:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+.tarjeta-pedido:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(215, 38, 56, 0.35);
 }
 
-.tarjeta-pedido.expandido{ background: #f9fafb; }
+.tarjeta-pedido.expandido {
+  background: #1f1f1f;
+  border-color: var(--primary);
+}
 
-/* Columna izquierda (datos) ocupa todo */
-.pedido-header{
+/* Columna izquierda */
+.pedido-header {
   flex: 1;
 }
 
-/* Observación debajo de Volumen (solo cuando está expandido) */
-.pedido-observacion{
-  margin-top: 6px;
-  white-space: normal;
-  word-break: break-word;
+.pedido-header h3 {
+  margin: 0 0 6px 0;
+  color: var(--ink);
 }
 
-/* Columna derecha (acciones) pegada a la derecha */
-.pedido-detalle{
-  margin: 0;
-  padding: 0;
-  border: 0;
+.pedido-header p {
+  margin: 2px 0;
+  font-size: 0.9rem;
+  color: var(--ink-muted);
+}
+
+/* Observación */
+.pedido-observacion {
+  margin-top: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+/* Columna derecha */
+.pedido-detalle {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  align-items: flex-end;      /* botón alineado a la derecha */
+  gap: 10px;
+  align-items: flex-end;
 }
 
-/* Responsivo: en pantallas chicas, card vuelve a vertical */
-@media (max-width: 480px){
-  .tarjeta-pedido{
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .pedido-detalle{ align-items: flex-start; }
+/* Botón entregar */
+.btn-entregado {
+  background: #16a34a;
+  color: #fff;
+  border: 1px solid #0f8f3b;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-/* resto igual */
-.pedidos-container{
-  display:flex; 
-  flex-direction:column; 
-  gap:16px;
-  padding:20px;
+.btn-entregado:hover {
+  background: #138f3e;
 }
-.pedidos-subtitle{
-  color:#6b7280; 
-  margin-bottom:10px; 
+
+/* Mensajes */
+.pedidos-msg {
+  color: var(--ink-muted);
 }
-.pedido-header h3{
-  margin-bottom:5px; 
-  color:#1f2937; 
-}
-.pedido-header p{
-  margin:2px 0; 
-  font-size:.9rem;
-  color:#374151;
-}
-.pedido-detalle p{
-  margin:0 0 8px 0;
-  font-size:.9rem;
-}
-.btn-entregado{
-  background:#22c55e;
-  color:#fff;
-  border:0;
-  border-radius:6px; 
-  padding:8px 12px; 
-  cursor:pointer; 
-  transition:background .2s;
-}
-.btn-entregado:hover{
-  background:#16a34a; 
-}
-.pedidos-msg{ 
-  color:#375aa0;
-}
-.pedidos-error{ 
-  color:#dc2626;
+
+.pedidos-error {
+  color: var(--primary-light);
+  font-weight: 600;
 }

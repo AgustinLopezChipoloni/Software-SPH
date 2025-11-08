@@ -5,6 +5,7 @@ const router = express.Router();
 
 
 router.post("/", async (req, res) => {
+  const conn = await pool.getConnection();
   try {
     const {
       cliente_id,
@@ -20,17 +21,78 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "Faltan datos obligatorios" });
     }
 
-    await pool.query(
+    const metros = parseFloat(m3);
+
+    // Fórmula por m³
+    const consumo = {
+      cemento: 200 * metros,
+      piedra: 1100 * metros,
+      arena: 900 * metros,
+      agua: 100 * metros,
+    };
+
+    await conn.beginTransaction();
+
+    // 1️⃣ Insertar pedido
+    await conn.query(
       `INSERT INTO pedidos 
       (cliente_id, nombre_cliente, apellido_cliente, empresa, m3, fecha_entrega, observacion, activo)
       VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
-      [cliente_id, nombre_cliente, apellido_cliente, empresa || null, m3, fecha_entrega, observacion || null]
+      [cliente_id, nombre_cliente, apellido_cliente, empresa || null, metros, fecha_entrega, observacion || null]
     );
 
-    res.json({ message: "✅ Pedido agendado correctamente" });
+    // 2️⃣ Obtener stock actual
+    const [materiales] = await conn.query("SELECT * FROM materiales");
+
+    const map = {};
+    materiales.forEach(m => {
+      map[m.nombre.toLowerCase()] = m;
+    });
+
+    // Verificaciones de stock
+    if (!map["cemento"] || map["cemento"].cantidad < consumo.cemento)
+      throw new Error("No hay suficiente cemento");
+
+    if (!map["piedra"] || map["piedra"].cantidad < consumo.piedra)
+      throw new Error("No hay suficiente piedra");
+
+    if (!map["arena"] || map["arena"].cantidad < consumo.arena)
+      throw new Error("No hay suficiente arena");
+
+    if (!map["agua"] || map["agua"].cantidad < consumo.agua)
+      throw new Error("No hay suficiente agua");
+
+    // 3️⃣ Descontar materiales
+    await conn.query(
+      "UPDATE materiales SET cantidad = cantidad - ? WHERE nombre = 'Cemento'",
+      [consumo.cemento]
+    );
+
+    await conn.query(
+      "UPDATE materiales SET cantidad = cantidad - ? WHERE nombre = 'Piedra'",
+      [consumo.piedra]
+    );
+
+    await conn.query(
+      "UPDATE materiales SET cantidad = cantidad - ? WHERE nombre = 'Arena'",
+      [consumo.arena]
+    );
+
+    await conn.query(
+      "UPDATE materiales SET cantidad = cantidad - ? WHERE nombre = 'Agua'",
+      [consumo.agua]
+    );
+
+    await conn.commit();
+
+    res.json({ message: "✅ Pedido agendado y stock actualizado correctamente" });
+
   } catch (error) {
     console.error("Error al agendar pedido:", error);
-    res.status(500).json({ message: "Error al agendar pedido" });
+    if (conn) await conn.rollback();
+    res.status(500).json({ message: error.message || "Error al agendar pedido" });
+  } finally {
+    if (conn) conn.release();
   }
 });
 

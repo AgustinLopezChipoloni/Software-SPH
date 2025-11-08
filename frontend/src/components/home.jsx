@@ -22,6 +22,8 @@ import AgendaClientes from "../components/AgendaClientes";
 import AsignacionesCamiones from "../components/AsignacionesCamiones";
 import AgendarPedido from "../components/AgendarPedido";
 import Pedidos from "../components/Pedidos";
+import HistorialPedidos from "../components/HistorialPedidos";
+
 
 
 function SidebarItem({ icon: Icon, label, active, onClick }) {
@@ -64,6 +66,7 @@ export default memo(function Home({ user, onLogout }) {
   const [logisticaTab, setLogisticaTab] = useState("asignaciones");
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const [clientesTab, setClientesTab] = useState("agenda");
+
 
   const [sidebarAbierto, setSidebarAbierto] = useState(true);
   const [userOpen, setUserOpen] = useState(false);
@@ -184,7 +187,8 @@ export default memo(function Home({ user, onLogout }) {
       <main className="content">
         {/* Topbar */}
         <header className="topbar">
-          <div className="top-title">
+          {/* Izquierda: título y subtítulo */}
+          <div className="top-left">
             {!sidebarAbierto && (
               <button
                 className="menu-trigger"
@@ -196,15 +200,17 @@ export default memo(function Home({ user, onLogout }) {
               </button>
             )}
 
-            <h1>{currentTitle}</h1>
-            <p className="top-subtitle">
-              {section === "dashboard"
-                ? "Resumen rápido del negocio"
-                : "Gestión de " + currentTitle.toLowerCase()}
-            </p>
+            <div className="title-wrap">
+              <h1>{currentTitle}</h1>
+              <p className="top-subtitle">
+                {section === "dashboard"
+                  ? "Resumen rápido del negocio"
+                  : "Gestión de " + currentTitle.toLowerCase()}
+              </p>
+            </div>
           </div>
 
-          {/* Usuario */}
+          {/* Derecha: usuario */}
           <div className="user-wrap" ref={userRef}>
             <button
               type="button"
@@ -241,6 +247,8 @@ export default memo(function Home({ user, onLogout }) {
           <AltaEmple />
         ) : section === "pedidos" ? (
           <Pedidos />
+        ) : section === "historial" ? (
+          <HistorialPedidos onVolver={() => setSection("dashboard")} />
         ) : section === "logistica" ? (
           <section
             className="welcome-card"
@@ -256,18 +264,16 @@ export default memo(function Home({ user, onLogout }) {
               }}
             >
               <button
-                className={`btn ${
-                  logisticaTab === "camiones" ? "btn-primary" : ""
-                }`}
+                className={`btn ${logisticaTab === "camiones" ? "btn-primary" : ""
+                  }`}
                 onClick={() => setLogisticaTab("camiones")}
                 type="button"
               >
                 Camiones
               </button>
               <button
-                className={`btn ${
-                  logisticaTab === "asignaciones" ? "btn-primary" : ""
-                }`}
+                className={`btn ${logisticaTab === "asignaciones" ? "btn-primary" : ""
+                  }`}
                 onClick={() => setLogisticaTab("asignaciones")}
                 type="button"
               >
@@ -287,63 +293,59 @@ export default memo(function Home({ user, onLogout }) {
         ) : section === "stock" ? (
           <StockMateriales />
         ) : section === "clientes" ? (
-  <section
-    className="welcome-card"
-    style={{ padding: 0, background: "transparent" }}
-  >
-    <div
-      style={{
-        display: "flex",
-        gap: 8,
-        padding: "10px 12px",
-        borderBottom: "1px solid var(--border, #e5e7eb)",
-        marginBottom: 16,
-      }}
-    >
-      <button
-        className={`btn ${clientesTab === "agenda" ? "btn-primary" : ""}`}
-        onClick={() => {
-          setClientesTab("agenda");
-          setClienteSeleccionado(null); // 👈 volvemos a la lista
-        }}
-        type="button"
-      >
-        Agenda
-      </button>
-      <button
-        className={`btn ${clientesTab === "clientes" ? "btn-primary" : ""}`}
-        onClick={() => {
-          setClientesTab("clientes");
-          setClienteSeleccionado(null);
-        }}
-        type="button"
-      >
-        Clientes
-      </button>
-    </div>
+          <section
+            className="welcome-card"
+            style={{ padding: 0, background: "transparent" }}
+          >
+            <div
+              style={{
+                display: "flex",
+                gap: 8,
+                padding: "10px 12px",
+                borderBottom: "1px solid var(--border, #e5e7eb)",
+                marginBottom: 16,
+              }}
+            >
+              <button
+                className={`btn ${clientesTab === "agenda" ? "btn-primary" : ""}`}
+                onClick={() => {
+                  setClientesTab("agenda");
+                  setClienteSeleccionado(null); // 👈 volvemos a la lista
+                }}
+                type="button"
+              >
+                Agenda
+              </button>
+              <button
+                className={`btn ${clientesTab === "clientes" ? "btn-primary" : ""}`}
+                onClick={() => {
+                  setClientesTab("clientes");
+                  setClienteSeleccionado(null);
+                }}
+                type="button"
+              >
+                Clientes
+              </button>
+            </div>
 
-    <div style={{ display: "grid", gap: 20 }}>
-      {clientesTab === "agenda" && !clienteSeleccionado ? (
-        <AgendaClientes onSeleccionar={setClienteSeleccionado} />  // 👈 pasamos función
-      ) : clienteSeleccionado ? (
-        <AgendarPedido
-          cliente={clienteSeleccionado}
-          onVolver={() => setClienteSeleccionado(null)}  // 👈 para volver
-        />
-      ) : (
-        <Clientes />
-      )}
-    </div>
-  </section>
+            <div style={{ display: "grid", gap: 20 }}>
+              {clientesTab === "agenda" && !clienteSeleccionado ? (
+                <AgendaClientes onSeleccionar={setClienteSeleccionado} />  // 👈 pasamos función
+              ) : clienteSeleccionado ? (
+                <AgendarPedido
+                  cliente={clienteSeleccionado}
+                  onVolver={() => setClienteSeleccionado(null)}  // 👈 para volver
+                />
+              ) : (
+                <Clientes />
+              )}
+            </div>
+
+          </section>
         ) : section === "dashboard" ? (
           <>
             <section className="stats-grid">
-              <StatCard
-                icon={BiCartAlt}
-                title="Pedidos de hoy"
-                value="—"
-                hint="Sin datos aún"
-              />
+
               <StatCard
                 icon={BiPackage}
                 title="m³ producidos"
@@ -359,9 +361,10 @@ export default memo(function Home({ user, onLogout }) {
               />
               <StatCard
                 icon={BiGroup}
-                title="Clientes activos"
+                title="Historial de pedidos"
                 value="—"
-                hint="Conectar a clientes"
+                hint="Ver historial"
+                onClick={() => setSection("historial")}
               />
             </section>
             <section className="welcome-card">

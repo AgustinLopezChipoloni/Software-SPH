@@ -1,59 +1,104 @@
+/* ================================
+   AGENDA CLIENTES - TEMA OSCURO INDUSTRIAL
+================================= */
+
 .agenda-container {
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 20px;
+  gap: 18px;
+  color: #fff;
 }
 
+/* Header */
 .agenda-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-1);
+}
+
+.agenda-header h2 {
+  margin: 0;
+  color: var(--ink);
 }
 
 .agenda-buscador {
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  width: 250px;
+  width: 260px;
+  padding: 10px 14px;
+  background: #1b1b1b;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: #fff;
+  outline: none;
+  transition: 0.2s;
 }
 
-.lista-clientes {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 16px;
+.agenda-buscador::placeholder {
+  color: #888;
 }
 
-.tarjeta-cliente {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  padding: 15px;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+.agenda-buscador:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(215, 38, 56, 0.25);
 }
 
-.tarjeta-cliente:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 3px 6px rgba(0,0,0,0.12);
-}
-
-.tarjeta-cliente h3 {
-  margin-bottom: 8px;
-  color: #1f2937;
-}
-
-.tarjeta-cliente p {
-  font-size: 0.9rem;
-  color: #374151;
-  margin: 2px 0;
+/* Mensajes */
+.agenda-msg,
+.agenda-error {
+  text-align: center;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 600;
 }
 
 .agenda-msg {
-  color: #375aa0;
+  background: #262626;
+  color: var(--ink-muted);
 }
 
 .agenda-error {
-  color: #dc2626;
+  background: rgba(215, 38, 56, 0.15);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+/* Lista de tarjetas */
+.lista-clientes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+/* Tarjeta */
+.tarjeta-cliente {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  cursor: pointer;
+  transition: 0.25s;
+  box-shadow: var(--shadow-1);
+}
+
+.tarjeta-cliente:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(215, 38, 56, 0.25);
+}
+
+.tarjeta-cliente h3 {
+  margin: 0 0 6px 0;
+  font-size: 1.2rem;
+  color: var(--ink);
+}
+
+.tarjeta-cliente p {
+  margin: 3px 0;
+  color: var(--ink-muted);
+  font-size: 0.92rem;
 }

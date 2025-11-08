@@ -40,7 +40,7 @@ export default function AgendaClientes({ onSeleccionar }) {
         <input
           type="text"
           className="agenda-buscador"
-          placeholder="🔍 Buscar cliente o empresa..."
+          placeholder=" Buscar cliente o empresa..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />

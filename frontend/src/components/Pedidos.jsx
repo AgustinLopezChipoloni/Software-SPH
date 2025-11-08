@@ -57,7 +57,7 @@ export default function Pedidos() {
               className={`tarjeta-pedido ${pedidoExpandido === p.id ? "expandido" : ""}`}
               onClick={() => toggleExpandir(p.id)}
             >
-              {/* Columna izquierda */}
+              
               <div className="pedido-header">
                 <h3>
                   {p.nombre_cliente} {p.apellido_cliente}
@@ -69,7 +69,7 @@ export default function Pedidos() {
                   <strong>Volumen:</strong> {p.m3} m³
                 </p>
 
-                {/* 👇 Observación AHORA va debajo de Volumen */}
+              
                 {pedidoExpandido === p.id && (
                   <p className="pedido-observacion">
                     <strong>Observación:</strong>{" "}
@@ -78,7 +78,7 @@ export default function Pedidos() {
                 )}
               </div>
 
-              {/* Columna derecha: solo acciones */}
+            
               {pedidoExpandido === p.id && (
                 <div className="pedido-detalle">
                   <button
