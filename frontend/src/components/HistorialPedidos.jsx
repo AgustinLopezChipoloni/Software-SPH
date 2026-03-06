@@ -18,6 +18,13 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 export default function HistorialPedidos({ onVolver }) {
   const [pedidos, setPedidos] = useState([]);
 
+  // ✅ fecha por defecto = hoy (formato YYYY-MM-DD)
+  const ahora = new Date();
+  ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
+  const hoyCadena = ahora.toISOString().slice(0, 10);
+
+  const [fecha, setFecha] = useState(hoyCadena);
+
   const cargar = async () => {
     const { data } = await api.get("/api/pedidos");
     setPedidos(data.filter((p) => Number(p.activo) === 0));
@@ -27,9 +34,20 @@ export default function HistorialPedidos({ onVolver }) {
     cargar();
   }, []);
 
-  const totales = pedidos.reduce((acc, p) => {
-    const fecha = new Date(p.fecha_entrega).toLocaleDateString("es-AR");
-    acc[fecha] = (acc[fecha] || 0) + 1;
+  // ✅ pedidos entregados filtrados por fecha (solo del día seleccionado)
+  const pedidosFiltrados = pedidos.filter((p) => {
+    // p.fecha_entrega viene como "YYYY-MM-DD" o Date-string.
+    // Normalizamos a YYYY-MM-DD:
+    const fechaPedido = new Date(p.fecha_entrega);
+    fechaPedido.setMinutes(fechaPedido.getMinutes() - fechaPedido.getTimezoneOffset());
+    const fechaCadena = fechaPedido.toISOString().slice(0, 10);
+    return fechaCadena === fecha;
+  });
+
+  // ✅ totales para el gráfico (con lo filtrado)
+  const totales = pedidosFiltrados.reduce((acc, p) => {
+    const fechaLabel = new Date(p.fecha_entrega).toLocaleDateString("es-AR");
+    acc[fechaLabel] = (acc[fechaLabel] || 0) + 1;
     return acc;
   }, {});
 
@@ -48,7 +66,8 @@ export default function HistorialPedidos({ onVolver }) {
   };
 
   const exportarExcel = () => {
-    const hoja = pedidos.map((p) => ({
+    // ✅ exporta lo que estás viendo (filtrado)
+    const hoja = pedidosFiltrados.map((p) => ({
       Cliente: `${p.nombre_cliente} ${p.apellido_cliente}`,
       Empresa: p.empresa || "—",
       "m³": p.m3,
@@ -71,6 +90,19 @@ export default function HistorialPedidos({ onVolver }) {
 
       <h2>Historial de pedidos entregados</h2>
 
+      {/* ✅ Filtro por fecha */}
+      <div className="historial-filtros">
+        <label className="historial-label">
+          Filtrar por fecha:
+          <input
+            type="date"
+            value={fecha}
+            onChange={(e) => setFecha(e.target.value)}
+            className="historial-input"
+          />
+        </label>
+      </div>
+
       <div className="chart-box">
         <Bar data={data} height={80} />
       </div>
@@ -87,15 +119,25 @@ export default function HistorialPedidos({ onVolver }) {
             </tr>
           </thead>
           <tbody>
-            {pedidos.map((p) => (
+            {pedidosFiltrados.map((p) => (
               <tr key={p.id}>
-                <td>{p.nombre_cliente} {p.apellido_cliente}</td>
+                <td>
+                  {p.nombre_cliente} {p.apellido_cliente}
+                </td>
                 <td>{p.empresa || "—"}</td>
                 <td>{p.m3}</td>
                 <td>{new Date(p.fecha_entrega).toLocaleDateString("es-AR")}</td>
                 <td>{p.observacion || "—"}</td>
               </tr>
             ))}
+
+            {pedidosFiltrados.length === 0 && (
+              <tr>
+                <td colSpan="5" style={{ textAlign: "center" }}>
+                  Sin pedidos entregados para la fecha seleccionada
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
 

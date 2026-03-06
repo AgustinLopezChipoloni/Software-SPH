@@ -61,3 +61,23 @@ table th {
 .btn-excel:hover {
   background: #14d8ff;
 }
+
+.historial-filtros{
+  margin: 10px 0 14px 0;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.historial-label{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-weight: 600;
+}
+
+.historial-input{
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+}

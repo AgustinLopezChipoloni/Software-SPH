@@ -67,14 +67,14 @@
   color: var(--primary);
 }
 
-/* Lista de tarjetas */
+/* Lista de tarjetas (queda, pero ahora no se usa en modo lista) */
 .lista-clientes {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
 }
 
-/* Tarjeta */
+/* Tarjeta (queda por si lo querés volver a usar) */
 .tarjeta-cliente {
   background: var(--card);
   border: 1px solid var(--border);
@@ -101,4 +101,133 @@
   margin: 3px 0;
   color: var(--ink-muted);
   font-size: 0.92rem;
+}
+
+/* =========================================================
+   ✅ NUEVO: MODO LISTA (una fila por cliente, lindo)
+========================================================= */
+
+.lista-clientes--lista{
+  display: flex;          /* pisa el grid de arriba */
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Fila */
+.cliente-fila{
+  display: grid;
+  grid-template-columns: 1.4fr 1.1fr 0.9fr 1.6fr;
+  gap: 12px;
+  align-items: center;
+
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow-1);
+  transition: .18s ease;
+  cursor: pointer;
+}
+
+.cliente-fila:hover{
+  border-color: var(--primary);
+  box-shadow: 0 4px 14px rgba(215, 38, 56, 0.22);
+  transform: translateY(-1px);
+}
+
+/* Encabezado de columnas */
+.cliente-fila--head{
+  cursor: default;
+  background: rgba(255,255,255,0.03);
+  border-style: dashed;
+  box-shadow: none;
+  transform: none;
+}
+
+.cliente-fila--head:hover{
+  border-color: var(--border);
+  box-shadow: none;
+  transform: none;
+}
+
+/* Columnas */
+.cliente-col{
+  color: var(--ink-muted);
+  font-size: 0.92rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cliente-nombre{
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 1.02rem;
+}
+
+/* Chip de empresa */
+.cliente-chip{
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  color: var(--ink);
+  font-weight: 600;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Responsive: en móvil, apilar info */
+@media (max-width: 768px){
+  .cliente-fila{
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .cliente-fila--head{
+    display: none; /* en mobile ocultamos header para que no moleste */
+  }
+
+  .cliente-col{
+    white-space: normal;
+  }
+
+  .cliente-col--email{
+    word-break: break-word;
+  }
+}
+
+/* =========================================================
+   ✅ NUEVO: PAGINACIÓN SIMPLE (mini)
+========================================================= */
+
+.paginacion-simple{
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.paginacion-simple button{
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.paginacion-simple button:hover{
+  border-color: var(--primary);
+}
+
+.paginacion-simple button:disabled{
+  opacity: 0.5;
+  cursor: not-allowed;
 }

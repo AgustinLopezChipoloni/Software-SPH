@@ -8,6 +8,10 @@ export default function AgendaClientes({ onSeleccionar }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // ✅ paginación simple
+  const [pagina, setPagina] = useState(1);
+  const porPagina = 10;
+
   const cargarClientes = async () => {
     try {
       const res = await api.get("/api/agendaclientes");
@@ -33,6 +37,17 @@ export default function AgendaClientes({ onSeleccionar }) {
     );
   });
 
+  // ✅ cuando cambia la búsqueda, volver a página 1
+  useEffect(() => {
+    setPagina(1);
+  }, [busqueda]);
+
+  const totalPaginas = Math.max(1, Math.ceil(clientesFiltrados.length / porPagina));
+  const paginaSegura = Math.min(pagina, totalPaginas);
+
+  const inicio = (paginaSegura - 1) * porPagina;
+  const clientesPagina = clientesFiltrados.slice(inicio, inicio + porPagina);
+
   return (
     <section className="agenda-container">
       <div className="agenda-header">
@@ -53,20 +68,70 @@ export default function AgendaClientes({ onSeleccionar }) {
       ) : clientesFiltrados.length === 0 ? (
         <p className="agenda-msg">No hay clientes que coincidan con la búsqueda.</p>
       ) : (
-        <div className="lista-clientes">
-          {clientesFiltrados.map((c) => (
-            <div
-              key={c.id}
-              className="tarjeta-cliente"
-              onClick={() => onSeleccionar(c)}
-            >
-              <h3>{c.nombre} {c.apellido}</h3>
-              <p><strong>Teléfono:</strong> {c.telefono || "-"}</p>
-              <p><strong>Email:</strong> {c.email}</p>
-              <p><strong>Empresa:</strong> {c.empresa || "Particular"}</p>
+        <>
+          <div className="lista-clientes lista-clientes--lista">
+            {/* ✅ Encabezado SIEMPRE visible */}
+            <div className="cliente-fila cliente-fila--head">
+              <div className="cliente-col cliente-col--nombre">Cliente</div>
+              <div className="cliente-col cliente-col--empresa">Empresa</div>
+              <div className="cliente-col cliente-col--tel">Teléfono</div>
+              <div className="cliente-col cliente-col--email">Email</div>
             </div>
-          ))}
-        </div>
+
+            {/* ✅ Filas paginadas */}
+            {clientesPagina.map((c) => (
+              <div
+                key={c.id}
+                className="cliente-fila"
+                onClick={() => onSeleccionar(c)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") onSeleccionar(c);
+                }}
+              >
+                <div className="cliente-col cliente-col--nombre">
+                  <div className="cliente-nombre">
+                    {c.nombre} {c.apellido}
+                  </div>
+                </div>
+
+                <div className="cliente-col cliente-col--empresa">
+                  <span className="cliente-chip">{c.empresa || "Particular"}</span>
+                </div>
+
+                <div className="cliente-col cliente-col--tel">{c.telefono || "-"}</div>
+
+                <div className="cliente-col cliente-col--email">{c.email}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* ✅ paginación simple */}
+          {clientesFiltrados.length > porPagina && (
+            <div className="paginacion-simple">
+              <button
+                type="button"
+                onClick={() => setPagina((p) => Math.max(1, p - 1))}
+                disabled={paginaSegura === 1}
+              >
+                ← Anterior
+              </button>
+
+              <span>
+                Página {paginaSegura} de {totalPaginas}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
+                disabled={paginaSegura === totalPaginas}
+              >
+                Siguiente →
+              </button>
+            </div>
+          )}
+        </>
       )}
     </section>
   );
